@@ -116,32 +116,15 @@ namespace SharpLink
         }
 
         public void newReqListener(ToxRequest req) {
-            Console.WriteLine("######################### req received");
-            Console.WriteLine(req.toNodeId);
-            Console.WriteLine(clientId);
-            Console.WriteLine(req.fromNodeId);
-            Console.WriteLine(serverId);
-            Console.WriteLine(req.url);
-            if (serverId == "") {
-                serverId = req.fromNodeId;
-            }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
-                Console.WriteLine("############################## messsage received");
                 msgHandler(Convert.FromBase64String(req.content));
             }
                 
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
-                Console.WriteLine("##################################### close");
-                Task.Factory.StartNew(() =>
-                {
-                    Thread.Sleep(10000);
-                    closeHandler();
-                    Close();
-                });
-                
+                closeHandler();
+                Close();
             }
-            
         }
 
         public void Close() {

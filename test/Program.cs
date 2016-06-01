@@ -20,6 +20,10 @@ namespace test
                 data[i] = (byte)i;
             }
             mClientSocket.Send(data, SocketFlags.None);
+            //Console.ReadKey();
+            //mClientSocket.Shutdown(SocketShutdown.Both);
+            //mClientSocket.Close();
+            //Console.ReadKey();
         }
     }
 }
