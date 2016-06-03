@@ -62,10 +62,10 @@ namespace SharpLink
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = targetToxId,
                 toNodeId = "",
-                content=ip.ToString() + "\n" + port,
+                content=Encoding.UTF8.GetBytes(ip.ToString() + "\n" + port),
                 time = Skynet.Utils.Utils.UnixTimeNow(),
             }, out status);
-            if (res == null || res.content == "failed") {
+            if (res == null || Encoding.UTF8.GetString(res.content) == "failed") {
                 mSkynet.removeNewReqListener(newReqListener);
                 return false;
             }
@@ -104,7 +104,7 @@ namespace SharpLink
                 toToxId = targetToxId,
                 toNodeId = serverId,
                 time = Skynet.Utils.Utils.UnixTimeNow(),
-                content = Convert.ToBase64String(msg.Take(size).ToArray()),
+                content = msg.Take(size).ToArray(),
             }, out status);
             if (!status && errorHander != null)
                 errorHander(new Exception("send message failed"));
@@ -117,9 +117,8 @@ namespace SharpLink
 
         public void newReqListener(ToxRequest req) {
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
-                msgHandler(Convert.FromBase64String(req.content));
+                msgHandler(req.content);
             }
-                
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
                 closeHandler();

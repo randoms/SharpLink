@@ -59,17 +59,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="F:\SharpTox\SharpTox\SharpTox.csproj">
+    <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpTox\SharpTox\SharpTox.csproj">
       <Project>{b3ab7d92-3d7a-41b2-86d1-d1b256b07663}</Project>
       <Name>SharpTox</Name>
     </ProjectReference>
-    <ProjectReference Include="F:\Skynet\Skynet\Skynet.csproj">
+    <ProjectReference Include="..\Skynet\Skynet\Skynet.csproj">
       <Project>{a9d42e48-8ef8-4282-abaf-c35d28780586}</Project>
       <Name>Skynet</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.1.28.3\build\Fody.targets" Condition="Exists('..\packages\Fody.1.28.3\build\Fody.targets')" />
