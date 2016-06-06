@@ -10,6 +10,7 @@ using SharpTox.Core;
 using System.Threading;
 using Newtonsoft.Json;
 using System.IO;
+using Skynet.Utils;
 
 namespace SharpLink
 {
@@ -19,6 +20,24 @@ namespace SharpLink
         {
             if (args.Length != 4 && args.Length != 0) {
                 Console.WriteLine("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
+            }
+
+            if (args.Length == 0)
+            {
+                // log to file
+                FileStream fs = new FileStream("logserver.txt", FileMode.Create);
+                var streamwriter = new StreamWriter(fs);
+                streamwriter.AutoFlush = true;
+                Console.SetOut(streamwriter);
+                Console.SetError(streamwriter);
+            }
+            else {
+                // log to file
+                FileStream fs = new FileStream("logclient.txt", FileMode.Create);
+                var streamwriter = new StreamWriter(fs);
+                streamwriter.AutoFlush = true;
+                Console.SetOut(streamwriter);
+                Console.SetError(streamwriter);
             }
 
             Skynet.Base.Skynet mSkynet = new Skynet.Base.Skynet();
@@ -46,7 +65,7 @@ namespace SharpLink
                             {
                                 while (true)
                                 {
-                                    byte[] buf = new byte[1024];
+                                    byte[] buf = new byte[1024*10];
                                     try
                                     {
                                         int size = clientSocket.Receive(buf);
@@ -68,8 +87,17 @@ namespace SharpLink
                                             }
                                             break;
                                         }
-                                        if (mlink != null)
-                                            mlink.Send(buf, size);
+                                        if (mlink != null) {
+                                            var res = mlink.Send(buf, size);
+                                            if (!res) {
+                                                closeFlag = true;
+                                                clientSocket.Shutdown(SocketShutdown.Both);
+                                                clientSocket.Close();
+                                                Console.WriteLine("tox send message failed");
+                                                break;
+                                            }
+                                        }
+                                            
                                     }
                                     catch (SocketException e)
                                     {
@@ -118,7 +146,7 @@ namespace SharpLink
                                 {
                                     clientSocket.Send(msg, SocketFlags.None);
                                 }
-                                catch (Exception e){
+                                catch (SocketException e){
                                     Console.WriteLine("ERROR: " + e.Message);
                                     Console.WriteLine(e.StackTrace);
                                     mlink.CloseRemote();
@@ -170,7 +198,7 @@ namespace SharpLink
                                 {
                                     mClientSocket.Send(msg, SocketFlags.None);
                                 }
-                                catch (Exception e)
+                                catch (SocketException e)
                                 {
                                     Console.WriteLine("ERROR: " + e.Message);
                                     Console.WriteLine(e.StackTrace);
@@ -180,7 +208,6 @@ namespace SharpLink
                                         mClientSocket.Shutdown(SocketShutdown.Both);
                                         mClientSocket.Close();
                                     }
-                                    
                                 }
 
                             });
@@ -195,7 +222,7 @@ namespace SharpLink
                             {
                                 while (true)
                                 {
-                                    byte[] buf = new byte[1024];
+                                    byte[] buf = new byte[1024*10];
                                     try
                                     {
                                         int size = mClientSocket.Receive(buf);
@@ -210,7 +237,18 @@ namespace SharpLink
                                             Console.WriteLine("Close Connection");
                                             break;
                                         }
-                                        mlink.Send(buf, size);
+                                        var res = mlink.Send(buf, size);
+                                        if (!res) {
+                                            // send failed
+                                            if (!closeFlag)
+                                            {
+                                                closeFlag = true;
+                                                mClientSocket.Shutdown(SocketShutdown.Both);
+                                                mClientSocket.Close();
+                                                Console.WriteLine("tox send message failed");
+                                                break;
+                                            }
+                                        }
                                     }
                                     catch (SocketException e)
                                     {

@@ -7,6 +7,7 @@ using SharpTox.Core;
 using System.Net;
 using Skynet.Models;
 using System.Threading;
+using Skynet.Utils;
 
 namespace SharpLink
 {
@@ -111,11 +112,32 @@ namespace SharpLink
             return status;
         }
 
+        public bool Send(byte[] msg, int size, int retryCount) {
+            int count = 0;
+            while (count < retryCount) {
+                var res = Send(msg, size);
+                if (res)
+                    break;
+                count++;
+                Thread.Sleep(10);
+            }
+            if (count == retryCount)
+                return false;
+            else
+                return true;
+        }
+
         public void OnMessage(Action<byte[]> msgHandler) {
             this.msgHandler = msgHandler;
         }
 
         public void newReqListener(ToxRequest req) {
+            //Console.WriteLine("received messsage0 " + Utils.UnixTimeNow());
+            //Console.WriteLine(req.toNodeId);
+            //Console.WriteLine(clientId);
+            //Console.WriteLine(req.fromNodeId);
+            //Console.WriteLine(serverId);
+            //Console.WriteLine(req.url);
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
                 msgHandler(req.content);
             }

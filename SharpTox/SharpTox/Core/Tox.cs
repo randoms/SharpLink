@@ -710,11 +710,9 @@ namespace SharpTox.Core
         public int SendMessage(int friendNumber, byte[] message, ToxMessageType type, out ToxErrorSendMessage error)
         {
             ThrowIfDisposed();
-
-            byte[] bytes = message;
             error = ToxErrorSendMessage.Ok;
 
-            return ToxTools.Map(ToxFunctions.FriendSendMessage(_tox, ToxTools.Map(friendNumber), type, bytes, (uint)bytes.Length, ref error));
+            return ToxTools.Map(ToxFunctions.FriendSendMessage(_tox, ToxTools.Map(friendNumber), type, message, (uint)message.Length, ref error));
         }
 
         /// <summary>
