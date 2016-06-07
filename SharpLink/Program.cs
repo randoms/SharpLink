@@ -20,6 +20,7 @@ namespace SharpLink
         {
             if (args.Length != 4 && args.Length != 0) {
                 Console.WriteLine("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
+                return;
             }
 
             if (args.Length == 0)
@@ -48,7 +49,7 @@ namespace SharpLink
                 int targetPort = Convert.ToInt32(args[3]);
 
                 // create local socket server
-                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                IPAddress ip = IPAddress.Parse("0.0.0.0");
                 var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 serverSocket.Bind(new IPEndPoint(ip, Convert.ToInt32(localPort)));
                 serverSocket.Listen(1000);
@@ -65,10 +66,15 @@ namespace SharpLink
                             {
                                 while (true)
                                 {
-                                    byte[] buf = new byte[1024*10];
+                                    byte[] buf = new byte[1024*512];
                                     try
                                     {
-                                        int size = clientSocket.Receive(buf);
+                                        int size = 0;
+                                        if (clientSocket != null && clientSocket.Connected)
+                                            size = clientSocket.Receive(buf);
+                                        else {
+                                            break;
+                                        }
                                         if (mlink == null)
                                         {
                                             tempData.AddRange(buf.Take(size));
@@ -76,9 +82,13 @@ namespace SharpLink
                                         if (size == 0)
                                         {
                                             // socket closed
-                                            Console.WriteLine("Close Connection");
-                                            if (mlink != null)
+                                            if (mlink != null) {
+                                                Console.WriteLine("Close Connection, clientid: " + mlink.clientId);
                                                 mlink.CloseRemote();
+                                            }
+                                            else
+                                                Console.WriteLine("Close Connection, mlink is null");
+
                                             if (!closeFlag)
                                             {
                                                 closeFlag = true;
@@ -93,7 +103,7 @@ namespace SharpLink
                                                 closeFlag = true;
                                                 clientSocket.Shutdown(SocketShutdown.Both);
                                                 clientSocket.Close();
-                                                Console.WriteLine("tox send message failed");
+                                                Console.WriteLine("Tox send message failed, clientId: " + mlink.clientId);
                                                 break;
                                             }
                                         }
@@ -119,11 +129,12 @@ namespace SharpLink
 
                                 }
                             });
+                            string connectGuid = Guid.NewGuid().ToString();
                             mlink = LinkClient.Connect(mSkynet, targetToxId, IPAddress.Parse(targetIP), Convert.ToInt32(targetPort));
                             if (mlink == null)
                             {
                                 // connected failed
-                                Console.WriteLine("Connected failed");
+                                Console.WriteLine("Connected failed, mlink is null");
                                 if (!closeFlag)
                                 {
                                     closeFlag = true;
@@ -138,13 +149,14 @@ namespace SharpLink
                             if (closeFlag)
                             {
                                 // socket has closed
-                                Console.WriteLine("Close remote");
+                                Console.WriteLine("Close remote mlinkid: " + mlink.clientId);
                                 mlink.CloseRemote();
                             }
                             mlink.OnMessage((msg) => {
                                 try
                                 {
-                                    clientSocket.Send(msg, SocketFlags.None);
+                                    if(clientSocket != null && clientSocket.Connected)
+                                        clientSocket.Send(msg, SocketFlags.None);
                                 }
                                 catch (SocketException e){
                                     Console.WriteLine("ERROR: " + e.Message);
@@ -182,7 +194,7 @@ namespace SharpLink
                             string reqStr = Encoding.UTF8.GetString(req.content);
                             string ipstr = reqStr.Split('\n')[0];
                             string port = reqStr.Split('\n')[1];
-                            Console.WriteLine("Connect to " + ipstr + " " + port);
+                            Console.WriteLine("Connect to " + ipstr + " " + port + " " + req.fromNodeId);
                             IPAddress targetIp = IPAddress.Parse(ipstr);
                             Socket mClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                             bool closeFlag = false;
@@ -192,11 +204,13 @@ namespace SharpLink
                             req.toNodeId = mlink.clientId;
 
                             mSkynet.sendResponse(req.createResponse(Encoding.UTF8.GetBytes("OK")), new ToxId(req.fromToxId));
+
                             mlink.OnMessage((msg) =>
                             {
                                 try
                                 {
-                                    mClientSocket.Send(msg, SocketFlags.None);
+                                    if(mClientSocket != null && mClientSocket.Connected)
+                                        mClientSocket.Send(msg, SocketFlags.None);
                                 }
                                 catch (SocketException e)
                                 {
@@ -222,10 +236,14 @@ namespace SharpLink
                             {
                                 while (true)
                                 {
-                                    byte[] buf = new byte[1024*10];
+                                    byte[] buf = new byte[1024*512];
                                     try
                                     {
-                                        int size = mClientSocket.Receive(buf);
+                                        int size = 0;
+                                        if (mClientSocket != null && mClientSocket.Connected)
+                                            size = mClientSocket.Receive(buf);
+                                        else
+                                            break;
                                         if (size == 0)
                                         {
                                             mlink.CloseRemote();
@@ -234,7 +252,7 @@ namespace SharpLink
                                                 mClientSocket.Shutdown(SocketShutdown.Both);
                                                 mClientSocket.Close();
                                             }
-                                            Console.WriteLine("Close Connection");
+                                            Console.WriteLine("Close Connection, clientid: " + mlink.clientId);
                                             break;
                                         }
                                         var res = mlink.Send(buf, size);
@@ -245,7 +263,7 @@ namespace SharpLink
                                                 closeFlag = true;
                                                 mClientSocket.Shutdown(SocketShutdown.Both);
                                                 mClientSocket.Close();
-                                                Console.WriteLine("tox send message failed");
+                                                Console.WriteLine("Tox send message failed, clientid: " + mlink.clientId);
                                                 break;
                                             }
                                         }
@@ -286,6 +304,7 @@ namespace SharpLink
                 else if (req.toNodeId == "" && req.url == "/handshake") {
                     var response = req.createResponse(Encoding.UTF8.GetBytes("OK"));
                     Console.WriteLine("HandShake from: " + response.toToxId);
+                    Console.WriteLine("Send response:" + response.uuid);
                     mSkynet.sendResponse(response, new ToxId(response.toToxId));
                 }
             });

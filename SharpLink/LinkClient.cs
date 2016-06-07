@@ -35,7 +35,7 @@ namespace SharpLink
 
         private async Task<bool> HandShake() {
             bool status;
-            var res = await mSkynet.sendRequest(serverToxId, new Skynet.Models.ToxRequest {
+            var res = await mSkynet.sendRequest(serverToxId, new ToxRequest {
                 url = "/handshake",
                 method = "get",
                 uuid = Guid.NewGuid().ToString(),
@@ -43,7 +43,7 @@ namespace SharpLink
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = serverToxId.ToString(),
                 toNodeId = "",
-                time = Skynet.Utils.Utils.UnixTimeNow(),
+                time = Utils.UnixTimeNow(),
             }, out status);
             if (res == null)
                 return false;
@@ -54,7 +54,7 @@ namespace SharpLink
         private async Task<bool> Connect() {
             mSkynet.addNewReqListener(newReqListener);
             bool status;
-            var res = await mSkynet.sendRequest(new ToxId(targetToxId), new Skynet.Models.ToxRequest
+            var res = await mSkynet.sendRequest(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/connect",
                 method = "get",
@@ -64,7 +64,7 @@ namespace SharpLink
                 toToxId = targetToxId,
                 toNodeId = "",
                 content=Encoding.UTF8.GetBytes(ip.ToString() + "\n" + port),
-                time = Skynet.Utils.Utils.UnixTimeNow(),
+                time = Utils.UnixTimeNow(),
             }, out status);
             if (res == null || Encoding.UTF8.GetString(res.content) == "failed") {
                 mSkynet.removeNewReqListener(newReqListener);
@@ -77,11 +77,17 @@ namespace SharpLink
         public static LinkClient Connect(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port) {
             LinkClient mLinkClient = new LinkClient(mSkynet, targetToxId, ip, port);
             var res = mLinkClient.HandShake().GetAwaiter().GetResult();
-            if (!res) // 链接tox失败
+            
+            if (!res) {
+                // 链接tox失败
                 return null;
+            }
             var connectRes = mLinkClient.Connect().GetAwaiter().GetResult();
-            if (!connectRes) // 创建socket失败
+
+            if (!connectRes) {
+                // 创建socket失败
                 return null;
+            } 
             return mLinkClient;
         }
 
@@ -132,12 +138,6 @@ namespace SharpLink
         }
 
         public void newReqListener(ToxRequest req) {
-            //Console.WriteLine("received messsage0 " + Utils.UnixTimeNow());
-            //Console.WriteLine(req.toNodeId);
-            //Console.WriteLine(clientId);
-            //Console.WriteLine(req.fromNodeId);
-            //Console.WriteLine(serverId);
-            //Console.WriteLine(req.url);
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
                 msgHandler(req.content);
             }

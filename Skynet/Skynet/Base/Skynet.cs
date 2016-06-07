@@ -17,6 +17,7 @@ namespace Skynet.Base
 
         public Tox tox;
         private Dictionary<string, byte[]> mPackageCache = new Dictionary<string, byte[]>();
+        object mPendingReqLock = new object();
         private Dictionary<string, Action<ToxResponse>> mPendingReqList = new Dictionary<string, Action<ToxResponse>>();
         public static int MAX_MSG_LENGTH = 1024;
         private List<string> connectedList = new List<string>();
@@ -68,8 +69,10 @@ namespace Skynet.Base
                     Package processPack = null;
                     lock (reqQueueLock)
                     {
-                        if (reqQueue.Count > 0)
+                        if (reqQueue.Count > 0) {
                             processPack = reqQueue.Dequeue();
+                        }
+                            
                     }
                     if (processPack != null) {
                         newReqReceived(processPack);
@@ -198,6 +201,7 @@ namespace Skynet.Base
                     currentCount = i,
                     content = mcontent,
                     totalSize = (uint)resContent.Length,
+                    startIndex = (uint)(i*MAX_MSG_LENGTH),
                 }.toBytes());
             }
             return result;
@@ -217,11 +221,13 @@ namespace Skynet.Base
             }
             receivedPackage.content.CopyTo(mcontentCache, receivedPackage.startIndex);
             // check if this is a response
-            if (mPendingReqList.ContainsKey(receivedPackage.uuid))
-            {
-                mPendingReqList[receivedPackage.uuid](ToxResponse.fromBytes(mcontentCache));
-                mPendingReqList.Remove(receivedPackage.uuid);
-                return;
+            lock (mPendingReqLock) {
+                if (mPendingReqList.ContainsKey(receivedPackage.uuid))
+                {
+                    mPendingReqList[receivedPackage.uuid](ToxResponse.fromBytes(mcontentCache));
+                    mPendingReqList.Remove(receivedPackage.uuid);
+                    return;
+                }
             }
             ToxRequest newReq = ToxRequest.fromBytes(mcontentCache);
             List<Action<ToxRequest>> tempReqList;
@@ -365,6 +371,22 @@ namespace Skynet.Base
             byte[] reqContent = req.getBytes();
             int packageNum = reqContent.Length / MAX_MSG_LENGTH + 1;
             bool res = false;
+
+            ToxResponse mRes = null;
+            object reslock = new object();
+            bool resFlag = false;
+            lock (mPendingReqLock)
+            {
+                mPendingReqList.Add(req.uuid, (response) => {
+                    mRes = response;
+                    lock (reslock)
+                    {
+                        resFlag = true;
+                        Monitor.PulseAll(reslock);
+                    }
+                });
+            }
+
             for (int i = 0; i < packageNum; i++)
             {
                 byte[] mcontent;
@@ -384,24 +406,17 @@ namespace Skynet.Base
                 if (!res) {
                     status = false;
                     return Task.Factory.StartNew<ToxResponse>(()=> {
+                        mPendingReqList.Remove(req.uuid);
                         return null;
                     });
                 }
             }
             status = res;
-            ToxResponse mRes = null;
-            object reslock = new object();
-            if (res) {
-                mPendingReqList.Add(req.uuid, (response) => {
-                    mRes = response;
-                    lock(reslock){
-                        Monitor.Pulse(reslock);
-                    }
-                });
-            }
+            
             return Task.Run(() => {
                 lock (reslock) {
-                    Monitor.Wait(reslock);
+                    if(!resFlag)
+                        Monitor.Wait(reslock);
                 }
                 return mRes;
             });
