@@ -54,11 +54,13 @@ namespace SharpLink
         private async Task<bool> Connect() {
             mSkynet.addNewReqListener(newReqListener);
             bool status;
+            string requuid = Guid.NewGuid().ToString();
+            Console.WriteLine(Utils.UnixTimeNow() + " Start connect: " + requuid);
             var res = await mSkynet.sendRequest(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/connect",
                 method = "get",
-                uuid = Guid.NewGuid().ToString(),
+                uuid = requuid,
                 fromNodeId = clientId,
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = targetToxId,
@@ -70,14 +72,16 @@ namespace SharpLink
                 mSkynet.removeNewReqListener(newReqListener);
                 return false;
             }
+            Console.WriteLine(Utils.UnixTimeNow() + " Connect success: " + requuid);
             serverId = res.fromNodeId;
             return true;
         }
 
         public static LinkClient Connect(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port) {
             LinkClient mLinkClient = new LinkClient(mSkynet, targetToxId, ip, port);
+            Console.WriteLine( Utils.UnixTimeNow() + " Start Handshake, clientId: " + mLinkClient.clientId);
             var res = mLinkClient.HandShake().GetAwaiter().GetResult();
-            
+            Console.WriteLine(Utils.UnixTimeNow() + " End Handshake, clientId: " + mLinkClient.clientId);
             if (!res) {
                 // 链接tox失败
                 return null;
