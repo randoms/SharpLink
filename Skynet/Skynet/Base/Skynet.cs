@@ -63,24 +63,29 @@ namespace Skynet.Base
                     }
                 }
 
-                // start queue process
-                while (tox.IsConnected)
-                {
-                    Package processPack = null;
-                    lock (reqQueueLock)
+                while (true) {
+                    // start queue process
+                    while (tox.IsConnected)
                     {
-                        if (reqQueue.Count > 0) {
-                            processPack = reqQueue.Dequeue();
+                        Package processPack = null;
+                        lock (reqQueueLock)
+                        {
+                            if (reqQueue.Count > 0)
+                            {
+                                processPack = reqQueue.Dequeue();
+                            }
+
                         }
-                            
+                        if (processPack != null)
+                        {
+                            newReqReceived(processPack);
+                        }
+                        else
+                            Thread.Sleep(1);
                     }
-                    if (processPack != null) {
-                        newReqReceived(processPack);
-                    }
-                    else
-                        Thread.Sleep(1);
+                    Console.WriteLine("tox is offline");
+                    Thread.Sleep(1000);
                 }
-                Console.WriteLine("tox is offline");
             });
 
             
@@ -130,6 +135,7 @@ namespace Skynet.Base
                 receivedData[i] = e.Data[i+1];
             }
             Package receivedPackage = Package.fromBytesStatic(receivedData);
+            Console.WriteLine("Received package: " + receivedPackage.uuid);
             if (receivedPackage.currentCount == 0)
             {
                 if(receivedPackage.totalCount == 1)
@@ -235,10 +241,12 @@ namespace Skynet.Base
             {
                 tempReqList = new List<Action<ToxRequest>>(reqCallbacks);
             }
+            Console.WriteLine("Start callbacks");
             foreach (var cb in tempReqList)
             {
                 cb(newReq);
             }
+            Console.WriteLine("End callbacks");
         }
 
         public bool sendMsg(ToxKey toxkey, byte[] msg)
@@ -382,6 +390,7 @@ namespace Skynet.Base
                     lock (reslock)
                     {
                         resFlag = true;
+                        Console.WriteLine("Callback called: " + req.uuid);
                         Monitor.PulseAll(reslock);
                     }
                 });
@@ -418,6 +427,7 @@ namespace Skynet.Base
                     if(!resFlag)
                         Monitor.Wait(reslock);
                 }
+                Console.WriteLine("Response unlocked: " + req.uuid);
                 return mRes;
             });
         }
