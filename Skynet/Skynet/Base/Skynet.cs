@@ -83,7 +83,7 @@ namespace Skynet.Base
                         else
                             Thread.Sleep(1);
                     }
-                    Console.WriteLine("tox is offline");
+                    Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() +", Event: tox is offline");
                     Thread.Sleep(1000);
                 }
             });
@@ -135,7 +135,7 @@ namespace Skynet.Base
                 receivedData[i] = e.Data[i+1];
             }
             Package receivedPackage = Package.fromBytesStatic(receivedData);
-            Console.WriteLine("Received package: " + receivedPackage.uuid);
+            Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() +", Event: Received package, PackageId:" + receivedPackage.uuid);
             if (receivedPackage.currentCount == 0)
             {
                 if(receivedPackage.totalCount == 1)
@@ -241,12 +241,12 @@ namespace Skynet.Base
             {
                 tempReqList = new List<Action<ToxRequest>>(reqCallbacks);
             }
-            Console.WriteLine("Start callbacks");
+            Console.WriteLine("Time: " + Utils.Utils.UnixTimeNow() +  ", Event: Start callbacks");
             foreach (var cb in tempReqList)
             {
                 cb(newReq);
             }
-            Console.WriteLine("End callbacks");
+            Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() +", Event: End callbacks");
         }
 
         public bool sendMsg(ToxKey toxkey, byte[] msg)
@@ -292,13 +292,13 @@ namespace Skynet.Base
                 while (tox.GetFriendConnectionStatus(friendNum) == ToxConnectionStatus.None && waitCount < maxCount)
                 {
                     if (waitCount % 1000 == 0)
-                        Console.WriteLine("target is offline." + waitCount / 1000);
+                        Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() + ", Event: target is offline " + waitCount / 1000);
                     waitCount += 10;
                     Thread.Sleep(10);
                 }
                 if (waitCount == maxCount)
                 {
-                    Console.WriteLine("Connect Failed");
+                    Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() +", Event: Connect Failed");
                     connectedList.Remove(toxkey.GetString());
                     return false;
                 }
@@ -319,7 +319,7 @@ namespace Skynet.Base
                         break;
                     }
                         
-                    Console.WriteLine(mesError + " " + Utils.Utils.UnixTimeNow());
+                    Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() + ", Event: " + mesError);
                     if (mesError == ToxErrorFriendCustomPacket.SendQ) {
                         Thread.Sleep(10);
                         continue;
@@ -390,7 +390,7 @@ namespace Skynet.Base
                     lock (reslock)
                     {
                         resFlag = true;
-                        Console.WriteLine("Callback called: " + req.uuid);
+                        Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() +", Event: Callback called, ReqId: " + req.uuid);
                         Monitor.PulseAll(reslock);
                     }
                 });
@@ -427,7 +427,7 @@ namespace Skynet.Base
                     if(!resFlag)
                         Monitor.Wait(reslock);
                 }
-                Console.WriteLine("Response unlocked: " + req.uuid);
+                Console.WriteLine("Time: "+ Utils.Utils.UnixTimeNow() + ", Event: Response unlocked, ReqId: " + req.uuid);
                 return mRes;
             });
         }

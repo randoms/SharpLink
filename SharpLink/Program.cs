@@ -56,12 +56,13 @@ namespace SharpLink
                 Task.Factory.StartNew(() => {
                     while (true)
                     {
-                        Console.WriteLine(Utils.UnixTimeNow() + " Waiting socket");
+                        Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Waiting socket");
                         List<byte> tempData = new List<byte>();
                         Socket clientSocket = serverSocket.Accept();
                         Task.Factory.StartNew(() => {
                             bool closeFlag = false;
                             LinkClient mlink = null;
+                            string tempConnectId = Guid.NewGuid().ToString();
                             Task.Factory.StartNew(() =>
                             {
                                 while (true)
@@ -72,9 +73,8 @@ namespace SharpLink
                                         int size = 0;
                                         if (clientSocket != null && clientSocket.Connected)
                                             size = clientSocket.Receive(buf);
-                                        else {
+                                        else 
                                             break;
-                                        }
                                         if (mlink == null)
                                         {
                                             tempData.AddRange(buf.Take(size));
@@ -83,27 +83,29 @@ namespace SharpLink
                                         {
                                             // socket closed
                                             if (mlink != null) {
-                                                Console.WriteLine(Utils.UnixTimeNow() + " Close Connection, clientid: " + mlink.clientId);
                                                 mlink.CloseRemote();
                                             }
-                                            else
-                                                Console.WriteLine(Utils.UnixTimeNow() + " Close Connection, mlink is null");
 
                                             if (!closeFlag)
                                             {
                                                 closeFlag = true;
                                                 clientSocket.Shutdown(SocketShutdown.Both);
                                                 clientSocket.Close();
+                                                if(mlink!=null)
+                                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+                                                else
+                                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
                                             }
                                             break;
                                         }
                                         if (mlink != null) {
                                             var res = mlink.Send(buf, size);
-                                            if (!res) {
+                                            if (!res && !closeFlag) {
                                                 closeFlag = true;
                                                 clientSocket.Shutdown(SocketShutdown.Both);
                                                 clientSocket.Close();
-                                                Console.WriteLine(Utils.UnixTimeNow() + " Tox send message failed, clientId: " + mlink.clientId);
+                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Tox send message failed, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                                 break;
                                             }
                                         }
@@ -113,7 +115,7 @@ namespace SharpLink
                                     {
                                         if (e.ErrorCode != 10004)
                                         {
-                                            Console.WriteLine("ERROR: " + e.Message);
+                                            Console.WriteLine("Time: "+ Utils.UnixTimeNow() +", Event: ERROR " + e.Message);
                                             Console.WriteLine(e.StackTrace);
                                         }
                                         if (mlink != null)
@@ -123,6 +125,10 @@ namespace SharpLink
                                             closeFlag = true;
                                             clientSocket.Shutdown(SocketShutdown.Both);
                                             clientSocket.Close();
+                                            if (mlink != null)
+                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+                                            else
+                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
                                         }
                                         break;
                                     }
@@ -133,12 +139,13 @@ namespace SharpLink
                             if (mlink == null)
                             {
                                 // connected failed
-                                Console.WriteLine(Utils.UnixTimeNow() + " Connected failed, mlink is null");
+                                Console.WriteLine("Time: " +　Utils.UnixTimeNow() + ", Event: Connected failed, ClientId: null" + ", ConnectId: " + tempConnectId);
                                 if (!closeFlag)
                                 {
                                     closeFlag = true;
                                     clientSocket.Shutdown(SocketShutdown.Both);
                                     clientSocket.Close();
+                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: null" + ", ConnectId: " + tempConnectId);
                                 }
                                 return;
                             }
@@ -148,7 +155,7 @@ namespace SharpLink
                             if (closeFlag)
                             {
                                 // socket has closed
-                                Console.WriteLine(Utils.UnixTimeNow() + " Close remote mlinkid: " + mlink.clientId);
+                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                 mlink.CloseRemote();
                             }
                             mlink.OnMessage((msg) => {
@@ -158,7 +165,7 @@ namespace SharpLink
                                         clientSocket.Send(msg, SocketFlags.None);
                                 }
                                 catch (SocketException e){
-                                    Console.WriteLine("ERROR: " + e.Message);
+                                    Console.WriteLine("Time: "+ Utils.UnixTimeNow() +", ERROR " + e.Message);
                                     Console.WriteLine(e.StackTrace);
                                     mlink.CloseRemote();
                                     if (!closeFlag)
@@ -166,6 +173,7 @@ namespace SharpLink
                                         closeFlag = true;
                                         clientSocket.Shutdown(SocketShutdown.Both);
                                         clientSocket.Close();
+                                        Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                     }
                                 }
                             });
@@ -175,6 +183,7 @@ namespace SharpLink
                                     closeFlag = true;
                                     clientSocket.Shutdown(SocketShutdown.Both);
                                     clientSocket.Close();
+                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                 }
                             });
                         });
@@ -193,7 +202,7 @@ namespace SharpLink
                             string reqStr = Encoding.UTF8.GetString(req.content);
                             string ipstr = reqStr.Split('\n')[0];
                             string port = reqStr.Split('\n')[1];
-                            Console.WriteLine(Utils.UnixTimeNow() + " Connect to " + ipstr + " " + port + " " + req.fromNodeId);
+                            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect to " + ipstr + " " + port + " " + req.fromNodeId);
                             IPAddress targetIp = IPAddress.Parse(ipstr);
                             Socket mClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                             bool closeFlag = false;
@@ -213,7 +222,7 @@ namespace SharpLink
                                 }
                                 catch (SocketException e)
                                 {
-                                    Console.WriteLine("ERROR: " + e.Message);
+                                    Console.WriteLine("Time: "+Utils.UnixTimeNow()+", Event: ERROR " + e.Message);
                                     Console.WriteLine(e.StackTrace);
                                     mlink.CloseRemote();
                                     if (!closeFlag) {
@@ -251,7 +260,7 @@ namespace SharpLink
                                                 mClientSocket.Shutdown(SocketShutdown.Both);
                                                 mClientSocket.Close();
                                             }
-                                            Console.WriteLine(Utils.UnixTimeNow() + " Close Connection, clientid: " + mlink.clientId);
+                                            Console.WriteLine("Time: "+ Utils.UnixTimeNow() + ", Event: Close Connection, Clientid: " + mlink.clientId);
                                             break;
                                         }
                                         var res = mlink.Send(buf, size);
@@ -262,7 +271,7 @@ namespace SharpLink
                                                 closeFlag = true;
                                                 mClientSocket.Shutdown(SocketShutdown.Both);
                                                 mClientSocket.Close();
-                                                Console.WriteLine(Utils.UnixTimeNow() + " Tox send message failed, clientid: " + mlink.clientId);
+                                                Console.WriteLine("Time: " +　Utils.UnixTimeNow() + ", Event: Tox send message failed, Clientid: " + mlink.clientId);
                                                 break;
                                             }
                                         }
@@ -271,7 +280,7 @@ namespace SharpLink
                                     {
                                         if (e.ErrorCode != 10004) // this is not an error
                                         {
-                                            Console.WriteLine("ERROR: " + e.Message);
+                                            Console.WriteLine("Time: " + Utils.UnixTimeNow() + " Event: ERROR " + e.Message);
                                             Console.WriteLine(e.StackTrace);
                                         }
                                         mlink.CloseRemote();
@@ -288,13 +297,13 @@ namespace SharpLink
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("ERROR: " + e.Message);
+                            Console.WriteLine("Time: "+Utils.UnixTimeNow()+", Event: ERROR " + e.Message);
                             Console.WriteLine(e.StackTrace);
                             // connected failed
                             string reqStr = Encoding.UTF8.GetString(req.content);
                             string ipstr = reqStr.Split('\n')[0];
                             string port = reqStr.Split('\n')[1];
-                            Console.WriteLine(Utils.UnixTimeNow() + " Connect to " + ipstr + " " + port + " failed");
+                            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect to " + ipstr + " " + port + " failed");
                             var response = req.createResponse(Encoding.UTF8.GetBytes("failed"));
                             mSkynet.sendResponse(response, new ToxId(response.toToxId));
                         }
@@ -302,8 +311,8 @@ namespace SharpLink
                 }
                 else if (req.toNodeId == "" && req.url == "/handshake") {
                     var response = req.createResponse(Encoding.UTF8.GetBytes("OK"));
-                    Console.WriteLine(Utils.UnixTimeNow() + " HandShake from: " + response.toToxId);
-                    Console.WriteLine(Utils.UnixTimeNow() + " Send response:" + response.uuid);
+                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: HandShake from " + response.toToxId);
+                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Send HandShake response " + response.uuid + ", ToxId: " + response.toToxId);
                     mSkynet.sendResponse(response, new ToxId(response.toToxId));
                 }
             });

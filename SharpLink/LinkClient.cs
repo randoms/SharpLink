@@ -34,28 +34,36 @@ namespace SharpLink
         }
 
         private async Task<bool> HandShake() {
+            string reqid = Guid.NewGuid().ToString();
+            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Start Handshake, ReqId: " + reqid +", ClientId: " + clientId);
             bool status;
             var res = await mSkynet.sendRequest(serverToxId, new ToxRequest {
                 url = "/handshake",
                 method = "get",
-                uuid = Guid.NewGuid().ToString(),
+                uuid = reqid,
                 fromNodeId = clientId,
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = serverToxId.ToString(),
                 toNodeId = "",
                 time = Utils.UnixTimeNow(),
             }, out status);
-            if (res == null)
+            
+            if (res == null){
+                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Handshake Failed, ReqId: " + reqid + ", ClientId: " + clientId);
                 return false;
-            else
+            }
+            else {
+                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Handshake Success, ReqId: " + reqid + ", ClientId: " + clientId);
                 return true;
+            }
+                
         }
 
         private async Task<bool> Connect() {
             mSkynet.addNewReqListener(newReqListener);
             bool status;
             string requuid = Guid.NewGuid().ToString();
-            Console.WriteLine(Utils.UnixTimeNow() + " Start connect: " + requuid);
+            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Start connect, ReqId: " + requuid + ", ClientId: " + clientId);
             var res = await mSkynet.sendRequest(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/connect",
@@ -70,18 +78,17 @@ namespace SharpLink
             }, out status);
             if (res == null || Encoding.UTF8.GetString(res.content) == "failed") {
                 mSkynet.removeNewReqListener(newReqListener);
+                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect failed, ReqId: " + requuid + ", ClientId: " + clientId);
                 return false;
             }
-            Console.WriteLine(Utils.UnixTimeNow() + " Connect success: " + requuid);
+            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect success, ReqId: " + requuid + ", ClientId: " + clientId);
             serverId = res.fromNodeId;
             return true;
         }
 
         public static LinkClient Connect(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port) {
             LinkClient mLinkClient = new LinkClient(mSkynet, targetToxId, ip, port);
-            Console.WriteLine( Utils.UnixTimeNow() + " Start Handshake, clientId: " + mLinkClient.clientId);
             var res = mLinkClient.HandShake().GetAwaiter().GetResult();
-            Console.WriteLine(Utils.UnixTimeNow() + " End Handshake, clientId: " + mLinkClient.clientId);
             if (!res) {
                 // 链接tox失败
                 return null;
@@ -104,12 +111,15 @@ namespace SharpLink
         }
 
         public bool Send(byte[] msg, int size) {
+            string msgGuidStr = Guid.NewGuid().ToString();
+            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Send Message, ClientId: " + clientId + ", ReqId: " + msgGuidStr);
+
             bool status;
             mSkynet.sendRequestNoReplay(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/msg",
                 method = "get",
-                uuid = Guid.NewGuid().ToString(),
+                uuid = msgGuidStr,
                 fromNodeId = clientId,
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = targetToxId,
@@ -143,6 +153,7 @@ namespace SharpLink
 
         public void newReqListener(ToxRequest req) {
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
+                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 msgHandler(req.content);
             }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
