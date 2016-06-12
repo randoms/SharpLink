@@ -22,6 +22,7 @@ namespace SharpLink
                 Console.WriteLine("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
                 return;
             }
+            Skynet.Base.Skynet mSkynet = null;
 
             if (args.Length == 0)
             {
@@ -31,6 +32,7 @@ namespace SharpLink
                 streamwriter.AutoFlush = true;
                 Console.SetOut(streamwriter);
                 Console.SetError(streamwriter);
+                
             }
             else {
                 // log to file
@@ -41,7 +43,18 @@ namespace SharpLink
                 Console.SetError(streamwriter);
             }
 
-            Skynet.Base.Skynet mSkynet = new Skynet.Base.Skynet();
+            // Save tox data for server
+            if (args.Length == 0 && File.Exists("tox.dat"))
+            {
+                mSkynet = new Skynet.Base.Skynet("tox.dat");
+            }else if(args.Length == 0 && !File.Exists("tox.dat")){
+                mSkynet = new Skynet.Base.Skynet();
+                mSkynet.Save("tox.dat");
+            }
+            else {
+                mSkynet = new Skynet.Base.Skynet();
+            }
+            
             if (args.Length == 4) {
                 string localPort = args[0];
                 string targetToxId = args[1];

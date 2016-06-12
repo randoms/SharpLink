@@ -31,12 +31,20 @@ namespace Skynet.Base
         
         public static List<Skynet> allInstance = new List<Skynet>();
 
-        public Skynet()
+        public Skynet(string filename = "")
         {
             // init tox client
             ToxOptions options = new ToxOptions(true, true);
+            if (filename != "")
+            {
+                tox = new Tox(options, ToxData.FromDisk(filename));
+            }
+            else {
+                tox = new Tox(options);
+            }
             
-            tox = new Tox(options);
+            
+            
             tox.OnFriendRequestReceived += tox_OnFriendRequestReceived;
             //tox.OnFriendMessageReceived += tox_OnFriendMessageReceived;
             tox.OnFriendLosslessPacketReceived += tox_OnFriendLosslessPacketReceived;
@@ -100,6 +108,10 @@ namespace Skynet.Base
 
         ~Skynet() {
             tox.Dispose();
+        }
+
+        public void Save(string filename) {
+            tox.GetData().Save(filename);
         }
 
         public void addNewReqListener(Action<ToxRequest> cb) {
