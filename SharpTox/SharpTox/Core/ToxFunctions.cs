@@ -8,7 +8,11 @@ namespace SharpTox.Core
     /// </summary>
     internal static class ToxFunctions
     {
+#if POSIX
+        const string dll = "libtoxcore.so";
+#else 
 		const string dll = "libtox";
+#endif
 
         [DllImport(dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "tox_new")]
         internal static extern ToxHandle New(ref ToxOptionsStruct options, ref ToxErrorNew error);

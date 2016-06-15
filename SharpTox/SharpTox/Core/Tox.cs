@@ -707,12 +707,14 @@ namespace SharpTox.Core
         /// <param name="type">The type of this message.</param>
         /// <param name="error"></param>
         /// <returns>Message ID on success.</returns>
-        public int SendMessage(int friendNumber, byte[] message, ToxMessageType type, out ToxErrorSendMessage error)
+        public int SendMessage(int friendNumber, string message, ToxMessageType type, out ToxErrorSendMessage error)
         {
             ThrowIfDisposed();
+
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
             error = ToxErrorSendMessage.Ok;
 
-            return ToxTools.Map(ToxFunctions.FriendSendMessage(_tox, ToxTools.Map(friendNumber), type, message, (uint)message.Length, ref error));
+            return ToxTools.Map(ToxFunctions.FriendSendMessage(_tox, ToxTools.Map(friendNumber), type, bytes, (uint)bytes.Length, ref error));
         }
 
         /// <summary>
@@ -722,7 +724,7 @@ namespace SharpTox.Core
         /// <param name="message">The message to be sent. Maximum length: <see cref="ToxConstants.MaxMessageLength"/></param>
         /// <param name="type">The type of this message.</param>
         /// <returns>Message ID on success.</returns>
-        public int SendMessage(int friendNumber, byte[] message, ToxMessageType type)
+        public int SendMessage(int friendNumber, string message, ToxMessageType type)
         {
             var error = ToxErrorSendMessage.Ok;
             return SendMessage(friendNumber, message, type, out error);
@@ -1509,7 +1511,7 @@ namespace SharpTox.Core
                     _onFriendMessageCallback = (IntPtr tox, uint friendNumber, ToxMessageType type, byte[] message, uint length, IntPtr userData) =>
                     {
                         if (_onFriendMessageReceived != null)
-                            _onFriendMessageReceived(this, new ToxEventArgs.FriendMessageEventArgs(ToxTools.Map(friendNumber), message, type));
+                            _onFriendMessageReceived(this, new ToxEventArgs.FriendMessageEventArgs(ToxTools.Map(friendNumber), Encoding.UTF8.GetString(message, 0, (int)length), type));
                     };
 
                     ToxFunctions.RegisterFriendMessageCallback(_tox, _onFriendMessageCallback, IntPtr.Zero);

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpLink
+namespace Skynet.Models
 {
-    class LinkServer
+    class ToxClient
     {
-        // crete local connections
-
+        public string Id { get; set; }
+        public List<NodeInfo> nodes { get; set; }
     }
 }

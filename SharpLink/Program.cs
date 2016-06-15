@@ -14,325 +14,302 @@ using Skynet.Utils;
 
 namespace SharpLink
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            if (args.Length != 4 && args.Length != 0) {
-                Console.WriteLine("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
-                return;
-            }
-            Skynet.Base.Skynet mSkynet = null;
+	public static class TaskExtension{
+		public static void ForgetOrThrow(this Task task)
+		{
+			task.ContinueWith((t) => {
+				Console.WriteLine(t.Exception);
+				Utils.LogUtils(t.Exception.ToString());
+			}, TaskContinuationOptions.OnlyOnFaulted);
+		}
+	}
 
-            if (args.Length == 0)
-            {
-                // log to file
-                FileStream fs = new FileStream("logserver.txt", FileMode.Create);
-                var streamwriter = new StreamWriter(fs);
-                streamwriter.AutoFlush = true;
-                Console.SetOut(streamwriter);
-                Console.SetError(streamwriter);
+	class Program
+	{
+		static void Main (string[] args)
+		{
+			if (args.Length != 4 && args.Length != 0) {
+				Console.WriteLine ("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
+				return;
+			}
+			Skynet.Base.Skynet mSkynet = null;
+
+			if (args.Length == 0) {
+				// log to file
+				Utils.setLogFile("server.log");
                 
-            }
-            else {
-                // log to file
-                FileStream fs = new FileStream("logclient.txt", FileMode.Create);
-                var streamwriter = new StreamWriter(fs);
-                streamwriter.AutoFlush = true;
-                Console.SetOut(streamwriter);
-                Console.SetError(streamwriter);
-            }
+			} else {
+				// log to file
+				Utils.setLogFile("client.log");
+			}
 
-            // Save tox data for server
-            if (args.Length == 0 && File.Exists("tox.dat"))
-            {
-                mSkynet = new Skynet.Base.Skynet("tox.dat");
-            }else if(args.Length == 0 && !File.Exists("tox.dat")){
-                mSkynet = new Skynet.Base.Skynet();
-                mSkynet.Save("tox.dat");
-            }
-            else {
-                mSkynet = new Skynet.Base.Skynet();
-            }
+			// Save tox data for server
+			if (args.Length == 0 && File.Exists ("tox.dat")) {
+				mSkynet = new Skynet.Base.Skynet ("tox.dat");
+			} else if (args.Length == 0 && !File.Exists ("tox.dat")) {
+				mSkynet = new Skynet.Base.Skynet ();
+				mSkynet.Save ("tox.dat");
+			} else {
+				mSkynet = new Skynet.Base.Skynet ();
+			}
             
-            if (args.Length == 4) {
-                string localPort = args[0];
-                string targetToxId = args[1];
-                string targetIP = args[2];
-                int targetPort = Convert.ToInt32(args[3]);
+			if (args.Length == 4) {
+				string localPort = args [0];
+				string targetToxId = args [1];
+				string targetIP = args [2];
+				int targetPort = Convert.ToInt32 (args [3]);
 
-                // create local socket server
-                IPAddress ip = IPAddress.Parse("0.0.0.0");
-                var serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                serverSocket.Bind(new IPEndPoint(ip, Convert.ToInt32(localPort)));
-                serverSocket.Listen(1000);
-                Task.Factory.StartNew(() => {
-                    while (true)
-                    {
-                        Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Waiting socket");
-                        List<byte> tempData = new List<byte>();
-                        Socket clientSocket = serverSocket.Accept();
-                        Task.Factory.StartNew(() => {
-                            bool closeFlag = false;
-                            LinkClient mlink = null;
-                            string tempConnectId = Guid.NewGuid().ToString();
-                            Task.Factory.StartNew(() =>
-                            {
-                                while (true)
-                                {
-                                    byte[] buf = new byte[1024*512];
-                                    try
-                                    {
-                                        int size = 0;
-                                        if (clientSocket != null && clientSocket.Connected)
-                                            size = clientSocket.Receive(buf);
-                                        else 
-                                            break;
-                                        if (mlink == null)
-                                        {
-                                            tempData.AddRange(buf.Take(size));
-                                        }
-                                        if (size == 0)
-                                        {
-                                            // socket closed
-                                            if (mlink != null) {
-                                                mlink.CloseRemote();
-                                            }
+				// create local socket server
+				IPAddress ip = IPAddress.Parse ("0.0.0.0");
+				var serverSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+				serverSocket.Bind (new IPEndPoint (ip, Convert.ToInt32 (localPort)));
+				serverSocket.Listen (1000);
+				Task.Factory.StartNew (() => {
+					while (true) {
+						Utils.LogUtils ("Event: Waiting socket");
+						List<byte> tempData = new List<byte> ();
+						Socket clientSocket = serverSocket.Accept ();
+						Task.Factory.StartNew (() => {
+							bool closeFlag = false;
+							LinkClient mlink = null;
+							string tempConnectId = Guid.NewGuid ().ToString ();
+							Task.Factory.StartNew (() => {
+								while (true) {
+									byte[] buf = new byte[1024 * 512];
+									try {
+										int size = 0;
+										if (clientSocket != null && clientSocket.Connected)
+											size = clientSocket.Receive (buf);
+										else
+											break;
+										if (mlink == null) {
+											tempData.AddRange (buf.Take (size));
+										}
+										if (size == 0) {
+											// socket closed
+											if (mlink != null) {
+												mlink.CloseRemote ();
+											}
 
-                                            if (!closeFlag)
-                                            {
-                                                closeFlag = true;
-                                                clientSocket.Shutdown(SocketShutdown.Both);
-                                                clientSocket.Close();
-                                                if(mlink!=null)
-                                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                                else
-                                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
-                                            }
-                                            break;
-                                        }
-                                        if (mlink != null) {
-                                            var res = mlink.Send(buf, size);
-                                            if (!res && !closeFlag) {
-                                                closeFlag = true;
-                                                clientSocket.Shutdown(SocketShutdown.Both);
-                                                clientSocket.Close();
-                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Tox send message failed, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                                break;
-                                            }
-                                        }
+											if (!closeFlag && clientSocket.Connected) {
+												closeFlag = true;
+												clientSocket.Shutdown (SocketShutdown.Both);
+												clientSocket.Close ();
+												if (mlink != null)
+													Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+												else
+													Utils.LogUtils ("Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
+											}
+											break;
+										}
+										if (mlink != null) {
+											var res = mlink.Send (buf, size);
+											if (!res && !closeFlag && clientSocket.Connected) {
+												closeFlag = true;
+												clientSocket.Shutdown (SocketShutdown.Both);
+												clientSocket.Close ();
+												Utils.LogUtils ("Event: Tox send message failed, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+												Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+												break;
+											}
+										}
                                             
-                                    }
-                                    catch (SocketException e)
-                                    {
-                                        if (e.ErrorCode != 10004)
-                                        {
-                                            Console.WriteLine("Time: "+ Utils.UnixTimeNow() +", Event: ERROR " + e.Message);
-                                            Console.WriteLine(e.StackTrace);
-                                        }
-                                        if (mlink != null)
-                                            mlink.CloseRemote();
-                                        if (!closeFlag)
-                                        {
-                                            closeFlag = true;
-                                            clientSocket.Shutdown(SocketShutdown.Both);
-                                            clientSocket.Close();
-                                            if (mlink != null)
-                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                            else
-                                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
-                                        }
-                                        break;
-                                    }
+									} catch (Exception e) {
+										Utils.LogUtils ("Event: ERROR " + e.Message);
+										Utils.LogUtils (e.StackTrace);
+										if (mlink != null)
+											mlink.CloseRemote ();
+										if (!closeFlag && clientSocket.Connected) {
+											closeFlag = true;
+											clientSocket.Shutdown (SocketShutdown.Both);
+											clientSocket.Close ();
+											if (mlink != null)
+												Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+											else
+												Utils.LogUtils ("Event: Close Connection, ClinetId: null" + ", ConnectId: " + tempConnectId);
+										}
+										break;
+									}
 
-                                }
-                            });
-                            mlink = LinkClient.Connect(mSkynet, targetToxId, IPAddress.Parse(targetIP), Convert.ToInt32(targetPort));
-                            if (mlink == null)
-                            {
-                                // connected failed
-                                Console.WriteLine("Time: " +　Utils.UnixTimeNow() + ", Event: Connected failed, ClientId: null" + ", ConnectId: " + tempConnectId);
-                                if (!closeFlag)
-                                {
-                                    closeFlag = true;
-                                    clientSocket.Shutdown(SocketShutdown.Both);
-                                    clientSocket.Close();
-                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: null" + ", ConnectId: " + tempConnectId);
-                                }
-                                return;
-                            }
-                            if (tempData.Count != 0)
-                                mlink.Send(tempData.ToArray(), tempData.Count);
-                            // check if socket has closed
-                            if (closeFlag)
-                            {
-                                // socket has closed
-                                Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                mlink.CloseRemote();
-                            }
-                            mlink.OnMessage((msg) => {
-                                try
-                                {
-                                    if(clientSocket != null && clientSocket.Connected)
-                                        clientSocket.Send(msg, SocketFlags.None);
-                                }
-                                catch (SocketException e){
-                                    Console.WriteLine("Time: "+ Utils.UnixTimeNow() +", ERROR " + e.Message);
-                                    Console.WriteLine(e.StackTrace);
-                                    mlink.CloseRemote();
-                                    if (!closeFlag)
-                                    {
-                                        closeFlag = true;
-                                        clientSocket.Shutdown(SocketShutdown.Both);
-                                        clientSocket.Close();
-                                        Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                    }
-                                }
-                            });
-                            mlink.OnClose(() => {
-                                if (!closeFlag)
-                                {
-                                    closeFlag = true;
-                                    clientSocket.Shutdown(SocketShutdown.Both);
-                                    clientSocket.Close();
-                                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-                                }
-                            });
-                        });
-                    }
-                });
-            }
+								}
+							},TaskCreationOptions.LongRunning).ForgetOrThrow();
+							mlink = LinkClient.Connect (mSkynet, targetToxId, IPAddress.Parse (targetIP), Convert.ToInt32 (targetPort));
+							if (mlink == null) {
+								// connected failed
+								Utils.LogUtils ("Event: Connected failed, ClientId: null" + ", ConnectId: " + tempConnectId);
+								if (!closeFlag && clientSocket.Connected) {
+									closeFlag = true;
+									clientSocket.Shutdown (SocketShutdown.Both);
+									clientSocket.Close ();
+									Utils.LogUtils ("Event: Close Connection, ClientId: null" + ", ConnectId: " + tempConnectId);
+								}
+								return;
+							}
+							if (tempData.Count != 0)
+								mlink.Send (tempData.ToArray (), tempData.Count);
+							// check if socket has closed
+							if (closeFlag) {
+								// socket has closed
+								Utils.LogUtils ("Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+								mlink.CloseRemote ();
+							}
+							mlink.OnMessage ((msg) => {
+								try {
+									if (clientSocket != null && clientSocket.Connected)
+										clientSocket.Send (msg, SocketFlags.None);
+								} catch (Exception e) {
+									Utils.LogUtils ("ERROR " + e.Message);
+									Utils.LogUtils(e.StackTrace);
+									mlink.CloseRemote ();
+									if (!closeFlag && clientSocket.Connected) {
+										closeFlag = true;
+										clientSocket.Shutdown (SocketShutdown.Both);
+										clientSocket.Close ();
+										Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+									}
+								}
+							});
+							mlink.OnClose (() => {
+								if (!closeFlag && clientSocket.Connected) {
+									closeFlag = true;
+									clientSocket.Shutdown (SocketShutdown.Both);
+									clientSocket.Close ();
+									Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+								}
+							});
+						}).ForgetOrThrow();
+					}
+				}, TaskCreationOptions.LongRunning).ForgetOrThrow();
+			}
 
-            mSkynet.addNewReqListener((req) => {
-                // handle 
-                if (req.toNodeId == "" && req.url == "/connect")
-                {
-                    Task.Factory.StartNew(() => {
-                        // connect to server received, create sockets
-                        try
-                        {
-                            string reqStr = Encoding.UTF8.GetString(req.content);
-                            string ipstr = reqStr.Split('\n')[0];
-                            string port = reqStr.Split('\n')[1];
-                            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect to " + ipstr + " " + port + " " + req.fromNodeId);
-                            IPAddress targetIp = IPAddress.Parse(ipstr);
-                            Socket mClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                            bool closeFlag = false;
-                            mClientSocket.Connect(new IPEndPoint(targetIp, Convert.ToInt32(port)));
+			mSkynet.addNewReqListener ((req) => {
+				// handle 
+				if (req.toNodeId == "" && req.url == "/connect") {
+					Utils.LogUtils ("Event: Task Connect to " + req.fromNodeId);
+					Task.Run (() => {
+						// connect to server received, create sockets
+						Utils.LogUtils ("Event: Task Started Connect to " + req.fromNodeId);
+						try {
+							string reqStr = Encoding.UTF8.GetString (req.content);
+							string ipstr = reqStr.Split ('\n') [0];
+							string port = reqStr.Split ('\n') [1];
+							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " " + req.fromNodeId);
+							IPAddress targetIp = IPAddress.Parse (ipstr);
+							Socket mClientSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+							bool closeFlag = false;
+							mClientSocket.Connect (new IPEndPoint (targetIp, Convert.ToInt32 (port)));
+							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " Success " + req.fromNodeId);
+							var mlink = LinkClient.Connect (mSkynet, req.fromToxId, req.fromNodeId);
+							req.toNodeId = mlink.clientId;
+							mSkynet.sendResponse (req.createResponse (Encoding.UTF8.GetBytes ("OK")), new ToxId (req.fromToxId));
+							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " Success " + req.fromNodeId + " , mLinkID: " + mlink.clientId);
 
-                            var mlink = LinkClient.Connect(mSkynet, req.fromToxId, req.fromNodeId);
-                            req.toNodeId = mlink.clientId;
-
-                            mSkynet.sendResponse(req.createResponse(Encoding.UTF8.GetBytes("OK")), new ToxId(req.fromToxId));
-
-                            mlink.OnMessage((msg) =>
-                            {
-                                try
-                                {
-                                    if(mClientSocket != null && mClientSocket.Connected)
-                                        mClientSocket.Send(msg, SocketFlags.None);
-                                }
-                                catch (SocketException e)
-                                {
-                                    Console.WriteLine("Time: "+Utils.UnixTimeNow()+", Event: ERROR " + e.Message);
-                                    Console.WriteLine(e.StackTrace);
-                                    mlink.CloseRemote();
-                                    if (!closeFlag) {
-                                        closeFlag = true;
-                                        mClientSocket.Shutdown(SocketShutdown.Both);
-                                        mClientSocket.Close();
-                                    }
-                                }
-
-                            });
-                            mlink.OnClose(() => {
-                                if (!closeFlag) {
-                                    closeFlag = true;
-                                    mClientSocket.Shutdown(SocketShutdown.Both);
-                                    mClientSocket.Close();
-                                }
-                            });
-                            Task.Factory.StartNew(() =>
-                            {
-                                while (true)
-                                {
-                                    byte[] buf = new byte[1024*512];
-                                    try
-                                    {
-                                        int size = 0;
-                                        if (mClientSocket != null && mClientSocket.Connected)
-                                            size = mClientSocket.Receive(buf);
-                                        else
-                                            break;
-                                        if (size == 0)
-                                        {
-                                            mlink.CloseRemote();
-                                            if (!closeFlag) {
-                                                closeFlag = true;
-                                                mClientSocket.Shutdown(SocketShutdown.Both);
-                                                mClientSocket.Close();
-                                            }
-                                            Console.WriteLine("Time: "+ Utils.UnixTimeNow() + ", Event: Close Connection, Clientid: " + mlink.clientId);
-                                            break;
-                                        }
-                                        var res = mlink.Send(buf, size);
-                                        if (!res) {
-                                            // send failed
-                                            if (!closeFlag)
-                                            {
-                                                closeFlag = true;
-                                                mClientSocket.Shutdown(SocketShutdown.Both);
-                                                mClientSocket.Close();
-                                                Console.WriteLine("Time: " +　Utils.UnixTimeNow() + ", Event: Tox send message failed, Clientid: " + mlink.clientId);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    catch (SocketException e)
-                                    {
-                                        if (e.ErrorCode != 10004) // this is not an error
+							mlink.OnMessage ((msg) => {
+								try {
+									Utils.LogUtils("Event: Start Write Message, mLinkID: " + mlink.clientId);
+									if (mClientSocket != null && mClientSocket.Connected)
+										mClientSocket.Send (msg, SocketFlags.None);
+									Utils.LogUtils("Event: Write Message Success, mLinkID: " + mlink.clientId);
+								} catch (Exception e) {
+									Utils.LogUtils ("Event: ERROR " + e.Message);
+									Utils.LogUtils (e.StackTrace);
+									mlink.CloseRemote ();
+									if (!closeFlag && mClientSocket.Connected) {
+										closeFlag = true;
+										mClientSocket.Shutdown (SocketShutdown.Both);
+										mClientSocket.Close ();
+										Utils.LogUtils ("Event: Close Socket" + ipstr + " " + port + " mLinkID " + mlink.clientId);
+									}
+								}
+							});
+							mlink.OnClose (() => {
+								if (!closeFlag && mClientSocket.Connected) {
+									closeFlag = true;
+									mClientSocket.Shutdown (SocketShutdown.Both);
+									mClientSocket.Close ();
+									Utils.LogUtils ("Event: Close Socket" + ipstr + " " + port + " mLinkID " + mlink.clientId);
+								}
+							});
+							Task.Factory.StartNew (() => {
+								while (true) {
+									byte[] buf = new byte[1024 * 512];
+									try {
+										Utils.LogUtils ("Event: Start Read Data, Clientid: " + mlink.clientId);
+										int size = 0;
+										if (mClientSocket != null && mClientSocket.Connected)
+											size = mClientSocket.Receive (buf);
+										else{
+											Utils.LogUtils ("Event: Socket already closed" + ipstr + " " + port + " mLinkID " + mlink.clientId);
+											break;
+										}
+											
+										if (size == 0) {
+											if (!closeFlag && mClientSocket.Connected) {
+												Utils.LogUtils ("Event: Close Connection, Clientid: " + mlink.clientId);
+												closeFlag = true;
+												mClientSocket.Shutdown (SocketShutdown.Both);
+												mClientSocket.Close ();
+											}
+											mlink.CloseRemote ();
+											break;
+										} else {
+											Utils.LogUtils ("Event: Read Data " + size + ", Clientid: " + mlink.clientId);
+										}
+										var res = mlink.Send (buf, size);
+										if (!res) {
+											// send failed
+											if (!closeFlag && mClientSocket.Connected) {
+												closeFlag = true;
+												mClientSocket.Shutdown (SocketShutdown.Both);
+												mClientSocket.Close ();
+												Utils.LogUtils("Event: Tox send message failed, Clientid: " + mlink.clientId);
+												break;
+											}
+										}
+									} catch (Exception e) {
+										/*if (e.ErrorCode != 10004) // this is not an error
                                         {
                                             Console.WriteLine("Time: " + Utils.UnixTimeNow() + " Event: ERROR " + e.Message);
                                             Console.WriteLine(e.StackTrace);
-                                        }
-                                        mlink.CloseRemote();
-                                        if (!closeFlag) {
-                                            closeFlag = true;
-                                            mClientSocket.Shutdown(SocketShutdown.Both);
-                                            mClientSocket.Close();
-                                        }
-                                        break;
-                                    }
-                                }
-                            });
+                                        }*/
+										Utils.LogUtils("Event: ERROR " + e.Message);
+										Utils.LogUtils(e.StackTrace);
+										mlink.CloseRemote ();
+										if (!closeFlag && mClientSocket.Connected) {
+											closeFlag = true;
+											mClientSocket.Shutdown (SocketShutdown.Both);
+											mClientSocket.Close ();
+											Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId);
+										}
+										break;
+									}
+								}
+							}, TaskCreationOptions.LongRunning).ForgetOrThrow();
+							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " All Success " + req.fromNodeId + ", mLinkID: " + mlink.clientId);
+						} catch (Exception e) {
+							Utils.LogUtils ("Event: ERROR " + e.Message);
+							Utils.LogUtils (e.StackTrace);
 
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Time: "+Utils.UnixTimeNow()+", Event: ERROR " + e.Message);
-                            Console.WriteLine(e.StackTrace);
-                            // connected failed
-                            string reqStr = Encoding.UTF8.GetString(req.content);
-                            string ipstr = reqStr.Split('\n')[0];
-                            string port = reqStr.Split('\n')[1];
-                            Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Connect to " + ipstr + " " + port + " failed");
-                            var response = req.createResponse(Encoding.UTF8.GetBytes("failed"));
-                            mSkynet.sendResponse(response, new ToxId(response.toToxId));
-                        }
-                    });
-                }
-                else if (req.toNodeId == "" && req.url == "/handshake") {
-                    var response = req.createResponse(Encoding.UTF8.GetBytes("OK"));
-                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: HandShake from " + response.toToxId);
-                    Console.WriteLine("Time: " + Utils.UnixTimeNow() + ", Event: Send HandShake response " + response.uuid + ", ToxId: " + response.toToxId);
-                    mSkynet.sendResponse(response, new ToxId(response.toToxId));
-                }
-            });
+							// connected failed
+							string reqStr = Encoding.UTF8.GetString (req.content);
+							string ipstr = reqStr.Split ('\n') [0];
+							string port = reqStr.Split ('\n') [1];
+							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " failed");
+							var response = req.createResponse (Encoding.UTF8.GetBytes ("failed"));
+							mSkynet.sendResponse (response, new ToxId (response.toToxId));
+						}
+					}).ForgetOrThrow();
+				} else if (req.toNodeId == "" && req.url == "/handshake") {
+					var response = req.createResponse (Encoding.UTF8.GetBytes ("OK"));
+					Utils.LogUtils ("Event: HandShake from " + response.toToxId);
+					Utils.LogUtils ("Event: Send HandShake response " + response.uuid + ", ToxId: " + response.toToxId);
+					mSkynet.sendResponse (response, new ToxId (response.toToxId));
+				}
+			});
 
-            while (true) {
-                Thread.Sleep(10);
-            }
-        }
-    }
+			while (true) {
+				Thread.Sleep (10);
+			}
+		}
+	}
 }
