@@ -133,7 +133,34 @@ namespace SharpLink
 
 								}
 							},TaskCreationOptions.LongRunning).ForgetOrThrow();
-							mlink = LinkClient.Connect (mSkynet, targetToxId, IPAddress.Parse (targetIP), Convert.ToInt32 (targetPort));
+							mlink = LinkClient.Connect (mSkynet, targetToxId, IPAddress.Parse (targetIP), Convert.ToInt32 (targetPort), 
+								// message handler
+								(msg) => {
+									try {
+										if (clientSocket != null && clientSocket.Connected)
+											clientSocket.Send (msg, SocketFlags.None);
+									} catch (Exception e) {
+										Utils.LogUtils ("ERROR " + e.Message);
+										Utils.LogUtils(e.StackTrace);
+										mlink.CloseRemote ();
+										if (!closeFlag && clientSocket.Connected) {
+											closeFlag = true;
+											clientSocket.Shutdown (SocketShutdown.Both);
+											clientSocket.Close ();
+											Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+										}
+									}
+								},
+								// close handler
+								() => {
+									if (!closeFlag && clientSocket.Connected) {
+										closeFlag = true;
+										clientSocket.Shutdown (SocketShutdown.Both);
+										clientSocket.Close ();
+										Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
+									}
+								}
+							);
 							if (mlink == null) {
 								// connected failed
 								Utils.LogUtils ("Event: Connected failed, ClientId: null" + ", ConnectId: " + tempConnectId);
@@ -153,30 +180,6 @@ namespace SharpLink
 								Utils.LogUtils ("Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
 								mlink.CloseRemote ();
 							}
-							mlink.OnMessage ((msg) => {
-								try {
-									if (clientSocket != null && clientSocket.Connected)
-										clientSocket.Send (msg, SocketFlags.None);
-								} catch (Exception e) {
-									Utils.LogUtils ("ERROR " + e.Message);
-									Utils.LogUtils(e.StackTrace);
-									mlink.CloseRemote ();
-									if (!closeFlag && clientSocket.Connected) {
-										closeFlag = true;
-										clientSocket.Shutdown (SocketShutdown.Both);
-										clientSocket.Close ();
-										Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-									}
-								}
-							});
-							mlink.OnClose (() => {
-								if (!closeFlag && clientSocket.Connected) {
-									closeFlag = true;
-									clientSocket.Shutdown (SocketShutdown.Both);
-									clientSocket.Close ();
-									Utils.LogUtils ("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
-								}
-							});
 						}).ForgetOrThrow();
 					}
 				}, TaskCreationOptions.LongRunning).ForgetOrThrow();
@@ -201,7 +204,6 @@ namespace SharpLink
 							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " Success " + req.fromNodeId);
 							var mlink = LinkClient.Connect (mSkynet, req.fromToxId, req.fromNodeId);
 							req.toNodeId = mlink.clientId;
-							mSkynet.sendResponse (req.createResponse (Encoding.UTF8.GetBytes ("OK")), new ToxId (req.fromToxId));
 							Utils.LogUtils ("Event: Connect to " + ipstr + " " + port + " Success " + req.fromNodeId + " , mLinkID: " + mlink.clientId);
 
 							mlink.OnMessage ((msg) => {
@@ -230,6 +232,8 @@ namespace SharpLink
 									Utils.LogUtils ("Event: Close Socket" + ipstr + " " + port + " mLinkID " + mlink.clientId);
 								}
 							});
+							// send response after all handler has been set
+							mSkynet.sendResponse (req.createResponse (Encoding.UTF8.GetBytes ("OK")), new ToxId (req.fromToxId));
 							Task.Factory.StartNew (() => {
 								while (true) {
 									byte[] buf = new byte[1024 * 512];

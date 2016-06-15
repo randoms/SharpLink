@@ -86,8 +86,14 @@ namespace SharpLink
             return true;
         }
 
-        public static LinkClient Connect(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port) {
+		public static LinkClient Connect(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port,
+			Action<byte[]> msgHandler,
+			Action closeHandler,
+			Action<Exception> errorHander = null) {
             LinkClient mLinkClient = new LinkClient(mSkynet, targetToxId, ip, port);
+			mLinkClient.msgHandler = msgHandler;
+			mLinkClient.closeHandler = closeHandler;
+			mLinkClient.errorHander = errorHander;
             var res = mLinkClient.HandShake().GetAwaiter().GetResult();
             if (!res) {
                 // 链接tox失败
