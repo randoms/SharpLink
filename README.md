@@ -9,7 +9,12 @@ SSH to your office computer from home, and many many things that used to be poss
 
 ##Compile
 ###Linux
-Not avaliable yet.
+1. Install toxcore, the instruction can be found [here](https://github.com/irungentoo/toxcore/blob/master/INSTALL.md)
+2. Install MonoDevelop
+   ```
+   sudo apt-get install mono-complete
+   ```
+3. Compile, you have to set build type to Debug POSIX or Release POSIX to build it. If you are facing with errors of dll not match, you have to reinstall depent libraries.
 
 ###Windows
 clone this project
@@ -30,7 +35,7 @@ First run server program on computer A
 
     SharpLink.exe
 
-A file named 'logserver.txt' will be created in current folder. File contents would be
+A file named 'server.log' will be created in current folder. File contents would be
 
     ID: C519671087E6E2A2EE24AE681CD1D494F8F2D2727A2E8380A1567C62F339D44E1DD28E8AF571
     Server listening on 51311
@@ -43,7 +48,7 @@ Run the following command on computer B
     SharpLink 9990 C519671087E6E2A2EE24AE681CD1D494F8F2D2727A2E8380A1567C62F339D44E1DD28E8AF571 127.0.0.1 3128
 
 The long string above is computer A's ID. 9990 is computer B's local port. 127.0.0.1 is the ip address computer B want to connect with via computer A. 3128 is the port computer B want to connect.
-After running that, a filed named 'logclient.txt' will be created in your current folder.
+After running that, a filed named 'client.log' will be created in your current folder.
 
     If connected successfully, file contents would be
 
@@ -83,7 +88,8 @@ In fact this process is simple. We create a socket both on local computer and re
 ##编译安装
 
 ###Linux
-  还没有移植
+1. 安装toxcore,这里有详细的安装方法
+2. 安装MonoDevelop,打开IDE之后编译.注意要把变异类型设置成Debug POSIX 或者 Release POSIX版本.
 
 
 ###Windows
@@ -106,7 +112,7 @@ In fact this process is simple. We create a socket both on local computer and re
 
     SharpLink.exe
 
-    此时在当前目录下会创建一个叫做logserver.txt的文件,其内容如下
+    此时在当前目录下会创建一个叫做server.log的文件,其内容如下
 
     ID: C519671087E6E2A2EE24AE681CD1D494F8F2D2727A2E8380A1567C62F339D44E1DD28E8AF571
     Server listening on 51311
@@ -120,7 +126,7 @@ In fact this process is simple. We create a socket both on local computer and re
 
 中间一长串就是A的ID， 9990 代表本地端口， 127.0.0.1 是B想要A连接的IP，3128是B想要A连接的端口。整个的效果就是A把自己的3128端口映射到B的9990端口上.
 
-    此时在当前文件夹下会创建一个叫做logclient.txt的文件,如果成功连接文件内容如下
+    此时在当前文件夹下会创建一个叫做client.log的文件,如果成功连接文件内容如下
     
     ID: D2D336CA480D19ED7C1EBD90F4500863EE2577853C1CEF7AEC3141D509A0F042110249C1CE47
     Server listening on 50895
