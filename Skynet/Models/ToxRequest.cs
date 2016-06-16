@@ -59,7 +59,14 @@ namespace Skynet.Models
             using (BsonReader reader = new BsonReader(ms))
             {
                 JsonSerializer serializer = new JsonSerializer();
-                res = serializer.Deserialize<ToxRequest>(reader);
+                try
+                {
+                    res = serializer.Deserialize<ToxRequest>(reader);
+                }
+                catch {
+                    res = null;
+                }
+                
             }
             ms.Close();
             return res;

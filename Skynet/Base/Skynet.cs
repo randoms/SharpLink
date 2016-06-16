@@ -243,6 +243,10 @@ namespace Skynet.Base
 				}
 			}
 			ToxRequest newReq = ToxRequest.fromBytes (mcontentCache);
+            if (newReq == null) {
+                Utils.Utils.LogUtils("Event: Invalid Request Data: receivedPackage " + receivedPackage.uuid);
+                return;
+            }
 			List<Action<ToxRequest>> tempReqList;
 			lock (reqListnerLock) {
 				tempReqList = new List<Action<ToxRequest>> (reqCallbacks);
