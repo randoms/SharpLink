@@ -124,20 +124,16 @@ namespace Skynet.Base
 
 		public void addNewReqListener (Action<ToxRequest> cb)
 		{
-			Task.Run (() => {
-				lock (reqListnerLock) {
-					reqCallbacks.Add (cb);
-				}
-			}).ForgetOrThrow();
+			lock (reqListnerLock) {
+				reqCallbacks.Add (cb);
+			}
 		}
 
 		public void removeNewReqListener (Action<ToxRequest> cb)
 		{
-			Task.Run (() => {
-				lock (reqListnerLock) {
-					reqCallbacks.Remove (cb);
-				}
-			}).ForgetOrThrow();
+			lock (reqListnerLock) {
+				reqCallbacks.Remove (cb);
+			}
 		}
 
 		static ToxNode[] Nodes = new ToxNode[] {
@@ -253,6 +249,9 @@ namespace Skynet.Base
 			}
 			Utils.Utils.LogUtils ("Event: Start callbacks");
 			foreach (var cb in tempReqList) {
+				Utils.Utils.LogUtils ("Event: Begin Process MessageID: " + newReq.uuid);
+				if(newReq.url == "/msg")
+					Utils.Utils.LogUtils ("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
 				cb (newReq);
 			}
 			Utils.Utils.LogUtils ("Event: End callbacks");

@@ -61,6 +61,7 @@ namespace SharpLink
 
         private async Task<bool> Connect() {
             mSkynet.addNewReqListener(newReqListener);
+			Utils.LogUtils ("Event: callback added ClientID: " + clientId);
             bool status;
             string requuid = Guid.NewGuid().ToString();
             Utils.LogUtils ("Event: Start connect, ReqId: " + requuid + ", ClientId: " + clientId);
@@ -157,13 +158,20 @@ namespace SharpLink
             this.msgHandler = msgHandler;
         }
 
-        public void newReqListener(ToxRequest req) {
+		public void newReqListener(ToxRequest req) {
+			Utils.LogUtils ("Event: newReqListener  MessageID: " + req.uuid);
+			if (req.toNodeId == clientId && req.url == "/msg" && req.fromNodeId != serverId) {
+				// message arrived before connection callback resolved
+				serverId = req.fromNodeId;
+			}
+				
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
                 Utils.LogUtils ("Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 msgHandler(req.content);
             }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
+				Utils.LogUtils ("Event: Received Close, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 closeHandler();
                 Close();
             }

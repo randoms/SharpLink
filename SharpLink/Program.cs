@@ -188,7 +188,7 @@ namespace SharpLink
 			mSkynet.addNewReqListener ((req) => {
 				// handle 
 				if (req.toNodeId == "" && req.url == "/connect") {
-					Utils.LogUtils ("Event: Task Connect to " + req.fromNodeId);
+					Utils.LogUtils ("Event: Task Connect to " + req.fromNodeId + ", MessageId: " + req.uuid);
 					Task.Run (() => {
 						// connect to server received, create sockets
 						Utils.LogUtils ("Event: Task Started Connect to " + req.fromNodeId);
@@ -304,8 +304,8 @@ namespace SharpLink
 						}
 					}).ForgetOrThrow();
 				} else if (req.toNodeId == "" && req.url == "/handshake") {
+					Utils.LogUtils ("Event: HandShake from " + response.toToxId + ", MessageID: " + req.uuid);
 					var response = req.createResponse (Encoding.UTF8.GetBytes ("OK"));
-					Utils.LogUtils ("Event: HandShake from " + response.toToxId);
 					Utils.LogUtils ("Event: Send HandShake response " + response.uuid + ", ToxId: " + response.toToxId);
 					mSkynet.sendResponse (response, new ToxId (response.toToxId));
 				}
