@@ -304,8 +304,8 @@ namespace SharpLink
 						}
 					}).ForgetOrThrow();
 				} else if (req.toNodeId == "" && req.url == "/handshake") {
-					Utils.LogUtils ("Event: HandShake from " + response.toToxId + ", MessageID: " + req.uuid);
 					var response = req.createResponse (Encoding.UTF8.GetBytes ("OK"));
+					Utils.LogUtils ("Event: HandShake from " + response.toToxId + ", MessageID: " + req.uuid);
 					Utils.LogUtils ("Event: Send HandShake response " + response.uuid + ", ToxId: " + response.toToxId);
 					mSkynet.sendResponse (response, new ToxId (response.toToxId));
 				}
