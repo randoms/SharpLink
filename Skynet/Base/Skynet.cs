@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace Skynet.Base
 {
@@ -55,7 +56,6 @@ namespace Skynet.Base
             
             
 			tox.OnFriendRequestReceived += tox_OnFriendRequestReceived;
-			//tox.OnFriendMessageReceived += tox_OnFriendMessageReceived;
 			tox.OnFriendLosslessPacketReceived += tox_OnFriendLosslessPacketReceived;
 			tox.OnFriendConnectionStatusChanged += tox_OnFriendConnectionStatusChanged;
 
@@ -71,13 +71,48 @@ namespace Skynet.Base
 			Utils.Utils.LogUtils ("ID: " + id);
 
 			// Log tox online status
-			Task.Factory.StartNew (() => {
+			Task.Factory.StartNew ( async () => {
+				var offLineCount = 0;
 				while (true) {
-					Thread.Sleep (200);
+					Thread.Sleep (2000);
 					if (tox.IsConnected) {
 						Console.WriteLine ("From Server " + httpPort + ":" + "tox is connected.");
 						Utils.Utils.LogUtils("From Server " + httpPort + ":" + "tox is connected.");
+						offLineCount = 0;
+						// send a online message to server
+						using(var client = new HttpClient()){
+							await client.PostAsJsonAsync("http://xiaoqiang.bwbot.org/online", tox.Id.ToString());
+						}
 						break;
+					}else {
+						Utils.Utils.LogUtils ("Event: tox is offline");
+						offLineCount ++;
+					}
+					if(offLineCount > 10){
+						// start a new tox node
+						offLineCount = 0;
+						tox.Dispose();
+						options = new ToxOptions (true, true);
+						if (filename != "") {
+							tox = new Tox (options, ToxData.FromDisk (filename));
+						} else {
+							tox = new Tox (options);
+						}
+
+						tox.OnFriendRequestReceived += tox_OnFriendRequestReceived;
+						tox.OnFriendLosslessPacketReceived += tox_OnFriendLosslessPacketReceived;
+						tox.OnFriendConnectionStatusChanged += tox_OnFriendConnectionStatusChanged;
+
+						foreach (ToxNode node in Nodes)
+							tox.Bootstrap (node);
+
+						tox.Name = "Skynet";
+						tox.StatusMessage = "Running Skynet";
+						tox.Start ();
+
+						id = tox.Id.ToString ();
+						Console.WriteLine ("ID: {0}", id);
+						Utils.Utils.LogUtils ("ID: " + id);
 					}
 				}
 
