@@ -35,7 +35,7 @@ namespace SharpLink
 
         private async Task<bool> HandShake() {
             string reqid = Guid.NewGuid().ToString();
-            Utils.LogUtils ("Event: Start Handshake, ReqId: " + reqid +", ClientId: " + clientId);
+            Utils.Log ("Event: Start Handshake, ReqId: " + reqid +", ClientId: " + clientId);
             bool status;
             var res = await mSkynet.sendRequest(serverToxId, new ToxRequest {
                 url = "/handshake",
@@ -49,11 +49,11 @@ namespace SharpLink
             }, out status);
             
             if (res == null){
-                Utils.LogUtils ("Event: Handshake Failed, ReqId: " + reqid + ", ClientId: " + clientId);
+                Utils.Log ("Event: Handshake Failed, ReqId: " + reqid + ", ClientId: " + clientId);
                 return false;
             }
             else {
-                Utils.LogUtils ("Event: Handshake Success, ReqId: " + reqid + ", ClientId: " + clientId);
+                Utils.Log ("Event: Handshake Success, ReqId: " + reqid + ", ClientId: " + clientId);
                 return true;
             }
                 
@@ -61,10 +61,10 @@ namespace SharpLink
 
         private async Task<bool> Connect() {
             mSkynet.addNewReqListener(newReqListener);
-			Utils.LogUtils ("Event: callback added ClientID: " + clientId);
+			Utils.Log ("Event: callback added ClientID: " + clientId);
             bool status;
             string requuid = Guid.NewGuid().ToString();
-            Utils.LogUtils ("Event: Start connect, ReqId: " + requuid + ", ClientId: " + clientId);
+            Utils.Log ("Event: Start connect, ReqId: " + requuid + ", ClientId: " + clientId);
             var res = await mSkynet.sendRequest(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/connect",
@@ -79,10 +79,10 @@ namespace SharpLink
             }, out status);
             if (res == null || Encoding.UTF8.GetString(res.content) == "failed") {
                 mSkynet.removeNewReqListener(newReqListener);
-                Utils.LogUtils ("Event: Connect failed, ReqId: " + requuid + ", ClientId: " + clientId);
+                Utils.Log ("Event: Connect failed, ReqId: " + requuid + ", ClientId: " + clientId);
                 return false;
             }
-            Utils.LogUtils ("Event: Connect success, ReqId: " + requuid + ", ClientId: " + clientId);
+            Utils.Log ("Event: Connect success, ReqId: " + requuid + ", ClientId: " + clientId);
             serverId = res.fromNodeId;
             return true;
         }
@@ -119,7 +119,7 @@ namespace SharpLink
 
         public bool Send(byte[] msg, int size) {
             string msgGuidStr = Guid.NewGuid().ToString();
-            Utils.LogUtils ("Event: Send Message, ClientId: " + clientId + ", ReqId: " + msgGuidStr);
+            Utils.Log ("Event: Send Message, ClientId: " + clientId + ", ReqId: " + msgGuidStr);
 
             bool status;
             mSkynet.sendRequestNoReplay(new ToxId(targetToxId), new ToxRequest
@@ -159,19 +159,19 @@ namespace SharpLink
         }
 
 		public void newReqListener(ToxRequest req) {
-			Utils.LogUtils ("Event: newReqListener  MessageID: " + req.uuid);
+			Utils.Log ("Event: newReqListener  MessageID: " + req.uuid);
 			if (req.toNodeId == clientId && req.url == "/msg" && req.fromNodeId != serverId) {
 				// message arrived before connection callback resolved
 				serverId = req.fromNodeId;
 			}
 				
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg") {
-                Utils.LogUtils ("Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
+                Utils.Log ("Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 msgHandler(req.content);
             }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
-				Utils.LogUtils ("Event: Received Close, ClientId: " + clientId + ", MessageId: " + req.uuid);
+				Utils.Log ("Event: Received Close, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 closeHandler();
                 Close();
             }

@@ -19,7 +19,7 @@ namespace Skynet.Base
 		{
 			task.ContinueWith((t) => {
 				Console.WriteLine(t.Exception);
-				Utils.Utils.LogUtils(t.Exception.ToString());
+				Utils.Utils.Log(t.Exception.ToString());
 			}, TaskContinuationOptions.OnlyOnFaulted);
 		}
 	}
@@ -68,7 +68,7 @@ namespace Skynet.Base
 
 			string id = tox.Id.ToString ();
 			Console.WriteLine ("ID: {0}", id);
-			Utils.Utils.LogUtils ("ID: " + id);
+			Utils.Utils.Log ("ID: " + id);
 
 			// Log tox online status
 			Task.Factory.StartNew ( async () => {
@@ -77,7 +77,7 @@ namespace Skynet.Base
 					Thread.Sleep (2000);
 					if (tox.IsConnected) {
 						Console.WriteLine ("From Server " + httpPort + ":" + "tox is connected.");
-						Utils.Utils.LogUtils("From Server " + httpPort + ":" + "tox is connected.");
+						Utils.Utils.Log("From Server " + httpPort + ":" + "tox is connected.");
 						offLineCount = 0;
 						// send a online message to server
 						if(filename != "")
@@ -86,7 +86,7 @@ namespace Skynet.Base
 						}
 						break;
 					}else {
-						Utils.Utils.LogUtils ("Event: tox is offline");
+						Utils.Utils.Log ("Event: tox is offline");
 						offLineCount ++;
 					}
 					if(offLineCount > 10){
@@ -113,7 +113,7 @@ namespace Skynet.Base
 
 						id = tox.Id.ToString ();
 						Console.WriteLine ("ID: {0}", id);
-						Utils.Utils.LogUtils ("ID: " + id);
+						Utils.Utils.Log ("ID: " + id);
 					}
 				}
 
@@ -132,7 +132,7 @@ namespace Skynet.Base
 						} else
 							Thread.Sleep (1);
 					}
-					Utils.Utils.LogUtils ("Event: tox is offline");
+					Utils.Utils.Log ("Event: tox is offline");
 					Thread.Sleep (1000);
 				}
 			}, TaskCreationOptions.LongRunning).ForgetOrThrow();
@@ -144,7 +144,7 @@ namespace Skynet.Base
 			string baseUrl = "http://localhost:" + httpPort + "/";
 			WebApp.Start<StartUp> (url: baseUrl);
 			Console.WriteLine ("Server listening on " + httpPort);
-			Utils.Utils.LogUtils ("Server listening on " + httpPort);
+			Utils.Utils.Log ("Server listening on " + httpPort);
 			allInstance.Add (this);
 		}
 
@@ -184,7 +184,7 @@ namespace Skynet.Base
 				receivedData [i] = e.Data [i + 1];
 			}
 			Package receivedPackage = Package.fromBytesStatic (receivedData);
-			Utils.Utils.LogUtils ("Event: Received package, PackageId:" + receivedPackage.uuid);
+			Utils.Utils.Log ("Event: Received package, PackageId:" + receivedPackage.uuid);
 			if (receivedPackage.currentCount == 0) {
 				if (receivedPackage.totalCount == 1) {
 					lock (reqQueueLock) {
@@ -210,8 +210,8 @@ namespace Skynet.Base
 			tox.AddFriendNoRequest (e.PublicKey);
 			Console.WriteLine ("From Server " + httpPort + " ");
 			Console.WriteLine ("Received friend req: " + e.PublicKey);
-			Utils.Utils.LogUtils ("From Server " + httpPort + " ");
-			Utils.Utils.LogUtils ("Received friend req: " + e.PublicKey);
+			Utils.Utils.Log ("From Server " + httpPort + " ");
+			Utils.Utils.Log ("Received friend req: " + e.PublicKey);
 		}
 
 		void tox_OnFriendConnectionStatusChanged (object sender, ToxEventArgs.FriendConnectionStatusEventArgs e)
@@ -280,21 +280,21 @@ namespace Skynet.Base
 			}
 			ToxRequest newReq = ToxRequest.fromBytes (mcontentCache);
             if (newReq == null) {
-                Utils.Utils.LogUtils("Event: Invalid Request Data: receivedPackage " + receivedPackage.uuid);
+                Utils.Utils.Log("Event: Invalid Request Data: receivedPackage " + receivedPackage.uuid);
                 return;
             }
 			List<Action<ToxRequest>> tempReqList;
 			lock (reqListnerLock) {
 				tempReqList = new List<Action<ToxRequest>> (reqCallbacks);
 			}
-			Utils.Utils.LogUtils ("Event: Start callbacks");
+			Utils.Utils.Log ("Event: Start callbacks");
 			foreach (var cb in tempReqList) {
-				Utils.Utils.LogUtils ("Event: Begin Process MessageID: " + newReq.uuid);
+				Utils.Utils.Log ("Event: Begin Process MessageID: " + newReq.uuid);
 				if(newReq.url == "/msg")
-					Utils.Utils.LogUtils ("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
+					Utils.Utils.Log ("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
 				cb (newReq);
 			}
-			Utils.Utils.LogUtils ("Event: End callbacks");
+			Utils.Utils.Log ("Event: End callbacks");
 		}
 
 		public bool sendMsg (ToxKey toxkey, byte[] msg)
@@ -336,12 +336,12 @@ namespace Skynet.Base
 					maxCount = 200 * 1000; // first time wait for 200s
 				while (tox.GetFriendConnectionStatus (friendNum) == ToxConnectionStatus.None && waitCount < maxCount) {
 					if (waitCount % 1000 == 0)
-						Utils.Utils.LogUtils ("Event: target is offline " + waitCount / 1000);
+						Utils.Utils.Log ("Event: target is offline " + waitCount / 1000);
 					waitCount += 10;
 					Thread.Sleep (10);
 				}
 				if (waitCount == maxCount) {
-					Utils.Utils.LogUtils ("Event: Connect Failed");
+					Utils.Utils.Log ("Event: Connect Failed");
 					connectedList.Remove (toxkey.GetString ());
 					return false;
 				}
@@ -361,7 +361,7 @@ namespace Skynet.Base
 						break;
 					}
                         
-					Utils.Utils.LogUtils ("Event: " + mesError);
+					Utils.Utils.Log ("Event: " + mesError);
 					if (mesError == ToxErrorFriendCustomPacket.SendQ) {
 						Thread.Sleep (10);
 						continue;
@@ -428,9 +428,9 @@ namespace Skynet.Base
 					mRes = response;
 					lock (reslock) {
 						resFlag = true;
-						Utils.Utils.LogUtils ("Event: Callback called, ReqId: " + req.uuid);
+						Utils.Utils.Log ("Event: Callback called, ReqId: " + req.uuid);
 						Monitor.PulseAll (reslock);
-						Utils.Utils.LogUtils ("Event: Pulse Lock, ReqId: " + req.uuid);
+						Utils.Utils.Log ("Event: Pulse Lock, ReqId: " + req.uuid);
 					}
 				});
 			}
@@ -459,15 +459,15 @@ namespace Skynet.Base
 			}
 			status = res;
 
-			Utils.Utils.LogUtils ("Event: return async, ReqId: " + req.uuid);
+			Utils.Utils.Log ("Event: return async, ReqId: " + req.uuid);
             
 			return Task.Factory.StartNew (() => {
-				Utils.Utils.LogUtils ("Event: Response locked, ReqId: " + req.uuid);
+				Utils.Utils.Log ("Event: Response locked, ReqId: " + req.uuid);
 				lock (reslock) {
 					while (!resFlag)
 						Monitor.Wait (reslock);
 				}
-				Utils.Utils.LogUtils ("Event: Response unlocked, ReqId: " + req.uuid);
+				Utils.Utils.Log ("Event: Response unlocked, ReqId: " + req.uuid);
 				return mRes;
 			}, TaskCreationOptions.LongRunning);
 		}

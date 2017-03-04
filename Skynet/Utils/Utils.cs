@@ -86,7 +86,7 @@ namespace Skynet.Utils
 			#endif
 		}
 
-		public static void LogUtils(string detail) {
+		public static void Log(string detail) {
 			#if(DEBUG)
 			lock (loglock) {
 				if (streamwriter == null)
