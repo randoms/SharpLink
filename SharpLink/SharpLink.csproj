@@ -28,15 +28,14 @@
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Owin.Host.HttpListener">
       <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.3.0.1\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -46,19 +45,19 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\SharpTox\SharpTox\SharpTox.csproj">
-      <Project>{B3AB7D92-3D7A-41B2-86D1-D1B256B07663}</Project>
-      <Name>SharpTox</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Skynet\Skynet.csproj">
-      <Project>{98046E68-91F8-43E2-BA7B-A166F24C52FA}</Project>
-      <Name>Skynet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Skynet\Skynet.csproj">
+      <Project>{98046E68-91F8-43E2-BA7B-A166F24C52FA}</Project>
+      <Name>Skynet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpTox\SharpTox\SharpTox.csproj">
+      <Project>{B3AB7D92-3D7A-41B2-86D1-D1B256B07663}</Project>
+      <Name>SharpTox</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

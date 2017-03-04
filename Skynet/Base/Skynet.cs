@@ -80,6 +80,7 @@ namespace Skynet.Base
 						Utils.Utils.LogUtils("From Server " + httpPort + ":" + "tox is connected.");
 						offLineCount = 0;
 						// send a online message to server
+						if(filename != "")
 						using(var client = new HttpClient()){
 							await client.PostAsJsonAsync("http://xiaoqiang.bwbot.org/online", tox.Id.ToString());
 						}
