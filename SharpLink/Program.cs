@@ -59,6 +59,12 @@ namespace SharpLink
 				string targetIP = args [2];
 				int targetPort = Convert.ToInt32 (args [3]);
 
+                if (!ToxId.IsValid(targetToxId)) {
+                    Console.WriteLine("not a valid id");
+                    Console.WriteLine("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
+                    return;
+                }
+
 				// create local socket server
 				IPAddress ip = IPAddress.Parse ("0.0.0.0");
 				var serverSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
