@@ -82,7 +82,8 @@ namespace Skynet.Base
 						// send a online message to server
 						if(filename != "")
 						using(var client = new HttpClient()){
-							await client.PostAsJsonAsync("http://xiaoqiang.bwbot.org/online", tox.Id.ToString());
+							ClientInfo minfo = new ClientInfo(tox.Id.ToString(), Utils.Utils.GetLocalIPAddress());
+							await client.PostAsJsonAsync("http://xiaoqiang.bwbot.org/v2/online", minfo);
 						}
 						break;
 					}else {

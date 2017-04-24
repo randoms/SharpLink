@@ -27,9 +27,6 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -86,6 +83,7 @@
     <Compile Include="Base\Contollers\NodeController.cs" />
     <Compile Include="Base\Contollers\ParentNodeController.cs" />
     <Compile Include="Base\Contollers\ToxController.cs" />
+    <Compile Include="Models\ClientInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
