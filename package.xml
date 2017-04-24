@@ -1,0 +1,31 @@
+<!--
+@Author: randoms
+@Date:   2017-04-24
+@Email:  randoms@randoms.me
+@Last modified by:   randoms
+@Last modified time: 2017-04-24
+@Copyright: © 2015-2017 Blue Whale Technology all rights reserved
+-->
+
+
+
+<package>
+  <name>sharplink</name>
+  <version>1.0.0</version>
+  <description>a p2p socket proxy</description>
+
+  <maintainer email="randoms@bwbot.org">Randoms</maintainer>
+  <author email="randoms@bwbot.org">Randoms</author>
+
+  <license>BSD</license>
+
+  <url type="website">https://github.com/BlueWhaleRobot/SharpLink</url>
+  <url type="bugtracker">https://github.com/BlueWhaleRobot/SharpLinkissues</url>
+  <url type="repository">https://github.com/BlueWhaleRobot/SharpLink</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>mono</build_depend>
+
+  <run_depend>mono</run_depend>
+</package>
