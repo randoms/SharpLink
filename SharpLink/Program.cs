@@ -11,6 +11,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using System.IO;
 using Skynet.Utils;
+using System.Reflection;
 
 namespace SharpLink
 {
@@ -33,11 +34,11 @@ namespace SharpLink
 				return;
 			}
 			Skynet.Base.Skynet mSkynet = null;
-
+			string exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			Directory.SetCurrentDirectory(exeDir);
 			if (args.Length == 0) {
 				// log to file
 				Utils.setLogFile("server.log");
-                
 			} else {
 				// log to file
 				Utils.setLogFile("client.log");

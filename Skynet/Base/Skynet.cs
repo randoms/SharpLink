@@ -79,12 +79,6 @@ namespace Skynet.Base
 						Console.WriteLine ("From Server " + httpPort + ":" + "tox is connected.");
 						Utils.Utils.Log("From Server " + httpPort + ":" + "tox is connected.");
 						offLineCount = 0;
-						// send a online message to server
-						if(filename != "")
-						using(var client = new HttpClient()){
-							ClientInfo minfo = new ClientInfo(tox.Id.ToString(), Utils.Utils.GetLocalIPAddress());
-							await client.PostAsJsonAsync("http://xiaoqiang.bwbot.org/v2/online", minfo);
-						}
 						break;
 					}else {
 						Utils.Utils.Log ("Event: tox is offline");
