@@ -87,6 +87,7 @@ namespace Skynet.Base
 					if(offLineCount > 10){
 						// start a new tox node
 						offLineCount = 0;
+						tox.Stop();
 						tox.Dispose();
 						options = new ToxOptions (true, true);
 						if (filename != "") {
@@ -299,85 +300,97 @@ namespace Skynet.Base
 
 		public bool sendMsg (ToxId toxid, byte[] msg)
 		{
-			lock (sendLock) {
+			try{
+				lock (sendLock) {
 
-				// check if this message is send to itself
-				if (toxid.ToString () == tox.Id.ToString ()) {
-					return false; // this is not allowed
-				}
-                
-				// wait toxcore online
-				int maxOnlineWaitTime = 20000; // 20s
-				int onlineWaitCount = 0;
-				while (!tox.IsConnected) {
-					Thread.Sleep (10);
-					onlineWaitCount += 10;
-					if (onlineWaitCount > maxOnlineWaitTime)
-						return false;
-				}
-                
-				ToxKey toxkey = toxid.PublicKey;
-				int friendNum = tox.GetFriendByPublicKey (toxkey);
-				if (friendNum == -1) {
-					int res = tox.AddFriend (toxid, "add friend");
-					if (res != (int)ToxErrorFriendAdd.Ok)
-						return false;
-					friendNum = tox.GetFriendByPublicKey (toxkey);
-				}
-                
-				int waitCount = 0;
-				int maxCount = 500;
-				if (connectedList.IndexOf (toxkey.GetString ()) == -1)
-					maxCount = 200 * 1000; // first time wait for 200s
-				while (tox.GetFriendConnectionStatus (friendNum) == ToxConnectionStatus.None && waitCount < maxCount) {
-					if (waitCount % 1000 == 0)
-						Utils.Utils.Log ("Event: target is offline " + waitCount / 1000);
-					waitCount += 10;
-					Thread.Sleep (10);
-				}
-				if (waitCount == maxCount) {
-					Utils.Utils.Log ("Event: Connect Failed");
-					connectedList.Remove (toxkey.GetString ());
-					return false;
-				}
-				if (connectedList.IndexOf (toxkey.GetString ()) == -1) {
-					connectedList.Add (toxkey.GetString ());
-				}
-                
-				var mesError = new ToxErrorFriendCustomPacket ();
-				// retry send message
-				int retryCount = 0;
-				while (retryCount < 10) {
-					byte[] msgToSend = new byte[msg.Length + 1];
-					msgToSend [0] = 170; // The first byte must be in the range 160-191.
-					msg.CopyTo (msgToSend, 1);
-					bool msgRes = tox.FriendSendLosslessPacket (friendNum, msgToSend, out mesError);
-					if (msgRes) {
-						break;
+					// check if this message is send to itself
+					if (toxid.ToString () == tox.Id.ToString ()) {
+						return false; // this is not allowed
 					}
-                        
-					Utils.Utils.Log ("Event: " + mesError);
-					if (mesError == ToxErrorFriendCustomPacket.SendQ) {
+
+					// wait toxcore online
+					int maxOnlineWaitTime = 20000; // 20s
+					int onlineWaitCount = 0;
+					while (!tox.IsConnected) {
 						Thread.Sleep (10);
-						continue;
+						onlineWaitCount += 10;
+						if (onlineWaitCount > maxOnlineWaitTime)
+							return false;
 					}
-					retryCount++;
-					Thread.Sleep (100);
 
+					ToxKey toxkey = toxid.PublicKey;
+					int friendNum = tox.GetFriendByPublicKey (toxkey);
+					if (friendNum == -1) {
+						int res = tox.AddFriend (toxid, "add friend");
+						if (res != (int)ToxErrorFriendAdd.Ok)
+							return false;
+						friendNum = tox.GetFriendByPublicKey (toxkey);
+					}
+
+					int waitCount = 0;
+					int maxCount = 500;
+					if (connectedList.IndexOf (toxkey.GetString ()) == -1)
+						maxCount = 200 * 1000; // first time wait for 200s
+					while (tox.GetFriendConnectionStatus (friendNum) == ToxConnectionStatus.None && waitCount < maxCount) {
+						if (waitCount % 1000 == 0)
+							Utils.Utils.Log ("Event: target is offline " + waitCount / 1000);
+						waitCount += 10;
+						Thread.Sleep (10);
+					}
+					if (waitCount == maxCount) {
+						Utils.Utils.Log ("Event: Connect Failed");
+						connectedList.Remove (toxkey.GetString ());
+						return false;
+					}
+					if (connectedList.IndexOf (toxkey.GetString ()) == -1) {
+						connectedList.Add (toxkey.GetString ());
+					}
+
+					var mesError = new ToxErrorFriendCustomPacket ();
+					// retry send message
+					int retryCount = 0;
+					while (retryCount < 10) {
+						byte[] msgToSend = new byte[msg.Length + 1];
+						msgToSend [0] = 170; // The first byte must be in the range 160-191.
+						msg.CopyTo (msgToSend, 1);
+						bool msgRes = tox.FriendSendLosslessPacket (friendNum, msgToSend, out mesError);
+						if (msgRes) {
+							break;
+						}
+
+						Utils.Utils.Log ("Event: " + mesError);
+						if (mesError == ToxErrorFriendCustomPacket.SendQ) {
+							Thread.Sleep (10);
+							continue;
+						}
+						retryCount++;
+						Thread.Sleep (100);
+
+					}
+					if (retryCount == 10)
+						return false;
+					return true;
 				}
-				if (retryCount == 10)
-					return false;
-				return true;
+			}catch(ObjectDisposedException){
+				return false;
 			}
+
 		}
 
 		public void sendRequestNoReplay (ToxId toxid, ToxRequest req, out bool status)
 		{
 			status = true;
-			if (toxid.ToString () == tox.Id.ToString ()) {
-				// request was sent to itself
-				status = true;
+
+			try{
+				if (toxid.ToString () == tox.Id.ToString ()) {
+					// request was sent to itself
+					status = true;
+				}
+			}catch(ObjectDisposedException){
+				status = false;
+				return;
 			}
+
 
 			byte[] reqContent = req.getBytes ();
 			int packageNum = reqContent.Length / MAX_MSG_LENGTH + 1;
@@ -404,12 +417,20 @@ namespace Skynet.Base
 
 		public Task<ToxResponse> sendRequest (ToxId toxid, ToxRequest req, out bool status)
 		{
-
-			if (toxid.ToString () == tox.Id.ToString ()) {
-				// request was sent to itself
-				status = true;
-				return RequestProxy.sendRequest (this, req);
+			try{
+				if (toxid.ToString () == tox.Id.ToString ()) {
+					// request was sent to itself
+					status = true;
+					return RequestProxy.sendRequest (this, req);
+				}
+			}catch(ObjectDisposedException){
+				status = false;
+				return Task.Factory.StartNew<ToxResponse> (() => {
+					return null;
+				}, TaskCreationOptions.LongRunning);
 			}
+
+
 
 			byte[] reqContent = req.getBytes ();
 			int packageNum = reqContent.Length / MAX_MSG_LENGTH + 1;
