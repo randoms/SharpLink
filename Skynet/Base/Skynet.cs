@@ -71,7 +71,7 @@ namespace Skynet.Base
 			Utils.Utils.Log ("ID: " + id);
 
 			// Log tox online status
-			Task.Factory.StartNew ( async () => {
+			Task.Factory.StartNew ( () => {
 				var offLineCount = 0;
 				while (true) {
 					Thread.Sleep (2000);
