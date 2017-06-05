@@ -30,6 +30,14 @@ namespace SharpTox.Core
             get { return _options.UdpEnabled; }
             set { _options.UdpEnabled = value; }
         }
+        /// <summary>
+        /// LocalDiscoveryEnabled
+        /// </summary>
+        public bool LocalDiscoveryEnabled
+        {
+            get { return _options.LocalDiscoveryEnabled; }
+            set { _options.LocalDiscoveryEnabled = value; }
+        }
 
         /// <summary>
         /// Proxy type.
@@ -89,6 +97,14 @@ namespace SharpTox.Core
             set { _options.TcpPort = (ushort)value; }
         }
 
+        /// <summary>
+        /// HolePunchingEnabled
+        /// </summary>
+        public bool HolePunchingEnabled {
+            get { return _options.HolePunchingEnabled; }
+            set { _options.HolePunchingEnabled = value; }
+        }
+
         private ToxOptionsStruct _options;
         internal ToxOptionsStruct Struct { get { return _options; } }
 
@@ -107,6 +123,8 @@ namespace SharpTox.Core
             _options = new ToxOptionsStruct();
             _options.Ipv6Enabled = ipv6Enabled;
             _options.UdpEnabled = udpEnabled;
+            _options.LocalDiscoveryEnabled = true;
+            _options.HolePunchingEnabled = true;
         }
 
         /// <summary>
@@ -196,7 +214,7 @@ namespace SharpTox.Core
         internal ushort TcpPort;
 
 		[MarshalAs(UnmanagedType.I1)]
-		internal bool hole_punching_enabled;
+		internal bool HolePunchingEnabled;
 
         internal ToxSaveDataType SaveDataType;
         internal IntPtr SaveData;
