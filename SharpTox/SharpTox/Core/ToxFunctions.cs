@@ -312,6 +312,9 @@ namespace SharpTox.Core
         [DllImport(dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "tox_callback_group_title")]
         internal static extern void RegisterGroupTitleCallback(ToxHandle tox, ToxDelegates.CallbackGroupTitleDelegate callback, IntPtr userdata);
 
+		[DllImport(dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "tox_log_cb")]
+		internal static extern void ToxLogCallback(ToxHandle tox, ToxLogLevel level, string file, uint line, string func, string message, IntPtr userdata);
+		
         #endregion
     }
 }
