@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Skynet.Base;
 using System.Net;
 using System.Net.Sockets;
 using SharpTox.Core;
 using System.Threading;
-using Newtonsoft.Json;
 using System.IO;
 using Skynet.Utils;
 using System.Reflection;
@@ -27,7 +25,11 @@ namespace SharpLink
 
 	class Program
 	{
-		static void Main (string[] args)
+
+        private static bool runningFlag = true;
+        public static bool IsConnected = false;
+
+        static void Main (string[] args)
 		{
 			if (args.Length != 4 && args.Length != 0) {
 				Console.WriteLine ("usage: SharpLink [local_port] [target_tox_id] [target_ip] [target_port]");
@@ -66,8 +68,18 @@ namespace SharpLink
                     return;
                 }
 
-				// create local socket server
-				IPAddress ip = IPAddress.Parse ("0.0.0.0");
+                Task.Run(() =>
+                {
+                    while (runningFlag)
+                    {
+                        IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
+                        Thread.Sleep(20 * 1000);
+                    }
+                });
+
+
+                // create local socket server
+                IPAddress ip = IPAddress.Parse ("0.0.0.0");
 				var serverSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				serverSocket.Bind (new IPEndPoint (ip, Convert.ToInt32 (localPort)));
 				serverSocket.Listen (1000);
