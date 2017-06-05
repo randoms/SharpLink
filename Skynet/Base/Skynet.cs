@@ -344,8 +344,6 @@ namespace Skynet.Base
             {
                 lock (sendLock)
                 {
-
-                    Utils.Utils.Log("OK0", true);
                     // check if this message is send to itself
                     if (toxid.ToString() == tox.Id.ToString())
                     {
@@ -373,8 +371,6 @@ namespace Skynet.Base
                         friendNum = tox.GetFriendByPublicKey(toxkey);
                     }
 
-                    Utils.Utils.Log("OK1", true);
-
                     int waitCount = 0;
                     int maxCount = 500;
                     if (connectedList.IndexOf(toxkey.GetString()) == -1)
@@ -394,8 +390,6 @@ namespace Skynet.Base
                         waitCount += 10;
                         Thread.Sleep(10);
                     }
-
-                    Utils.Utils.Log("OK2", true);
                     if (waitCount == maxCount)
                     {
                         Utils.Utils.Log("Event: Connect Failed", true);
@@ -411,7 +405,6 @@ namespace Skynet.Base
                     var mesError = new ToxErrorFriendCustomPacket();
                     // retry send message
                     int retryCount = 0;
-                    Utils.Utils.Log("OK3", true);
                     while (retryCount < 60)
                     {
                         byte[] msgToSend = new byte[msg.Length + 1];
@@ -434,18 +427,12 @@ namespace Skynet.Base
                         Thread.Sleep(100);
 
                     }
-
-                    Utils.Utils.Log("OK4", true);
                     if (retryCount == 60)
                     {
-                        Utils.Utils.Log("OK5", true);
                         connectedList.Remove(toxkey.GetString());
                         tox.DeleteFriend(friendNum);
-                        Utils.Utils.Log("OK6", true);
                         return false;
                     }
-
-                    Utils.Utils.Log("OK7", true);
 
                     return true;
                 }
