@@ -337,12 +337,12 @@ namespace Skynet.Base
             Utils.Utils.Log("Event: End callbacks");
         }
 
-        public bool sendMsg(ToxKey toxkey, byte[] msg, int timeout = 0)
+        public bool sendMsg(ToxKey toxkey, byte[] msg, int timeout = 20)
         {
             return sendMsg(new ToxId(toxkey.GetBytes(), 100), msg, timeout);
         }
 
-        public bool sendMsg(ToxId toxid, byte[] msg, int timeout = 0)
+        public bool sendMsg(ToxId toxid, byte[] msg, int timeout = 20)
         {
             try
             {
@@ -424,7 +424,7 @@ namespace Skynet.Base
                         Console.WriteLine("Event: " + mesError);
                         if (mesError == ToxErrorFriendCustomPacket.SendQ)
                         {
-                            Thread.Sleep(10);
+                            Thread.Sleep(50);
                             continue;
                         }
                         retryCount++;
@@ -603,10 +603,11 @@ namespace Skynet.Base
             }, TaskCreationOptions.LongRunning);
         }
 
-        public async Task<bool> HandShake(ToxId target, int timeout = 0)
+        public async Task<bool> HandShake(ToxId target, int timeout = 20)
         {
             string reqid = Guid.NewGuid().ToString();
             Utils.Utils.Log("Event: Start Handshake , ReqId: " + reqid, true);
+            Console.WriteLine("Event: Start Handshake , ReqId: " + reqid);
             bool status;
             var res = await sendRequest(target, new ToxRequest
             {
@@ -623,6 +624,7 @@ namespace Skynet.Base
             if (res == null)
             {
                 Utils.Utils.Log("Event: Handshake Failed, ReqId: " + reqid, true);
+                Console.WriteLine("Event: Handshake failed, ReqId: " + reqid);
                 return false;
             }
             else

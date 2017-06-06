@@ -89,7 +89,7 @@ namespace Skynet.Utils
 
         public static void Log(string detail)
         {
-#if (DEBUG)
+//#if (DEBUG)
             lock (loglock)
             {
                 if (streamwriter == null)
@@ -101,7 +101,7 @@ namespace Skynet.Utils
                 streamwriter.WriteLine("Time: " + UnixTimeNow() + ", " + detail);
                 streamwriter.Flush();
             }
-#endif
+//#endif
         }
 
         public static void Log(string detail, bool force)

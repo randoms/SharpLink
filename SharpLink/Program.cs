@@ -86,7 +86,7 @@ namespace SharpLink
                     while (runningFlag)
                     {
                         IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
-                        Thread.Sleep(20 * 1000);
+                        Thread.Sleep(2*1000);
                     }
                 });
 

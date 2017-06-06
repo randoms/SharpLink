@@ -38,6 +38,7 @@ namespace SharpLink
         {
             string reqid = Guid.NewGuid().ToString();
             Utils.Log("Event: Start Handshake, ReqId: " + reqid + ", ClientId: " + clientId);
+            Console.WriteLine("Event: Start Handshake, ReqId: " + reqid + ", ClientId: " + clientId);
             bool status;
             var res = await mSkynet.sendRequest(serverToxId, new ToxRequest
             {
@@ -59,6 +60,7 @@ namespace SharpLink
             else
             {
                 Utils.Log("Event: Handshake Success, ReqId: " + reqid + ", ClientId: " + clientId);
+                Console.WriteLine("Event: Handshake Success, ReqId: " + reqid + ", ClientId: " + clientId);
                 return true;
             }
 
