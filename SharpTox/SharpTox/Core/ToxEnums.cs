@@ -455,7 +455,7 @@
         /// The function returned successfully.
         /// </summary>
         Ok,
-        
+
         /// <summary>
         /// The friend number passed did not designate a valid friend.
         /// </summary>
@@ -609,7 +609,7 @@
         /// The function returned successfully.
         /// </summary>
         Ok,
-        
+
         /// <summary>
         /// The friend number passed did not designate a valid friend.
         /// </summary>
@@ -747,11 +747,12 @@
         SecretKey
     }
 
-	internal enum ToxLogLevel {
-		ToxLogLevelTrace,
-		ToxLogLevelTraceDebug,
-		ToxLogLevelTraceInfo,
-		ToxLogLevelTraceDebugWarning,
-		ToxLogLevelTraceDebugError,
-	}
+    internal enum ToxLogLevel
+    {
+        ToxLogLevelTrace,
+        ToxLogLevelTraceDebug,
+        ToxLogLevelTraceInfo,
+        ToxLogLevelTraceDebugWarning,
+        ToxLogLevelTraceDebugError,
+    }
 }

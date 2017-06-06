@@ -447,8 +447,8 @@ namespace SharpTox.Av
                 {
                     _onBitrateStatusCallback = (IntPtr toxAv, uint friendNumber, uint audioBitrate, uint videoBitrate, IntPtr userData) =>
                     {
-                            if (_onBitrateSuggestion != null)
-                                _onBitrateSuggestion(this, new ToxAvEventArgs.BitrateStatusEventArgs(ToxTools.Map(friendNumber), (int)audioBitrate, (int)videoBitrate));
+                        if (_onBitrateSuggestion != null)
+                            _onBitrateSuggestion(this, new ToxAvEventArgs.BitrateStatusEventArgs(ToxTools.Map(friendNumber), (int)audioBitrate, (int)videoBitrate));
                     };
 
                     ToxAvFunctions.RegisterBitrateStatusCallback(_toxAv, _onBitrateStatusCallback, IntPtr.Zero);

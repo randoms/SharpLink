@@ -11,7 +11,7 @@ using System.Web.Http;
 
 namespace Skynet.Base.Contollers
 {
-    public class ToxController : ApiController 
+    public class ToxController : ApiController
     {
         [Route("api/tox/{id}")]
         [HttpGet]
@@ -57,7 +57,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/tox")]
         [HttpGet]
-        public NodeResponse GetAll() {
+        public NodeResponse GetAll()
+        {
             List<string> toxList = Skynet.allInstance.Select(x => x.tox.Id.ToString()).ToList();
             return new NodeResponse
             {

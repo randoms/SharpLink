@@ -47,12 +47,13 @@ namespace Skynet.Models
             nodeChangeLock = new NodeLock { from = null, isLocked = false };
             AllLocalNodes.Add(this);
             if (bootStrapParents != null && bootStrapParents.Count > 0)
-                Task.Run(async () => {
+                Task.Run(async () =>
+                {
                     await joinNetByTargetParents(bootStrapParents);
                 });
         }
 
-        public Node(Base.Skynet skynet):this(new List<NodeId>() { }, skynet) {}
+        public Node(Base.Skynet skynet) : this(new List<NodeId>() { }, skynet) { }
 
         /// <summary>
         /// get the quality of the node based on bandwidth, uptime, disk storage size etc
@@ -103,7 +104,7 @@ namespace Skynet.Models
                 NodeId parentNode = targetNodeList[0];
                 ToxRequest addParentReq = new ToxRequest
                 {
-                    url = "node/"+ parentNode.uuid +"/childNodes",
+                    url = "node/" + parentNode.uuid + "/childNodes",
                     method = "post",
                     uuid = Guid.NewGuid().ToString(),
                     content = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(selfNode)),
@@ -131,7 +132,8 @@ namespace Skynet.Models
                     targetNodeList = targetNodeList.Concat(newTargetsList).ToList();
                     continue;
                 }
-                else if (addParentResponse.statusCode == NodeResponseCode.OK) {
+                else if (addParentResponse.statusCode == NodeResponseCode.OK)
+                {
                     // set parent and connect status
                     target = new NodeId
                     {
@@ -140,7 +142,8 @@ namespace Skynet.Models
                     };
                     isConnected = true;
                     break;
-                }else
+                }
+                else
                 {
                     // try to connect next target
                     targetNodeList.Remove(parentNode);
@@ -154,7 +157,8 @@ namespace Skynet.Models
             {
                 isConnected = true;
                 // set parents, will boardcast grandparents change to child nodes, and set target grandparents
-                ToxResponse setParentResponse = await RequestProxy.sendRequest(mSkynet, new ToxRequest {
+                ToxResponse setParentResponse = await RequestProxy.sendRequest(mSkynet, new ToxRequest
+                {
                     url = "node/" + selfNode.uuid + "/parent",
                     method = "put",
                     content = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(target)),
@@ -174,15 +178,19 @@ namespace Skynet.Models
             return isConnected;
         }
 
-        public void relatedNodesStatusChanged(NodeId targetNode) {
+        public void relatedNodesStatusChanged(NodeId targetNode)
+        {
             if (targetNode == nodeChangeLock.from)
                 nodeChangeLock.isLocked = false;
             // child nodes offline
             NodeId childNodeToRemove = childNodes.Where(x => x.uuid == targetNode.uuid).DefaultIfEmpty(null).FirstOrDefault();
-            if (childNodeToRemove != null) {
+            if (childNodeToRemove != null)
+            {
                 childNodes.Remove(targetNode);
-                Task.Run(async () => {
-                    ToxResponse res = await RequestProxy.sendRequest(mSkynet, new ToxRequest {
+                Task.Run(async () =>
+                {
+                    ToxResponse res = await RequestProxy.sendRequest(mSkynet, new ToxRequest
+                    {
                         uuid = Guid.NewGuid().ToString(),
                         url = "node/" + selfNode.uuid + "/childNodes",
                         method = "put",
@@ -197,13 +205,13 @@ namespace Skynet.Models
                 return;
             }
             // parent node offline
-            if(targetNode.uuid == parent.uuid)
+            if (targetNode.uuid == parent.uuid)
             {
                 Task.Run(async () =>
                 {
                     if (grandParents == null)
                         return;
-                    bool isConnected = await joinNetByTargetParents(new List<NodeId> { grandParents});
+                    bool isConnected = await joinNetByTargetParents(new List<NodeId> { grandParents });
                     // rejoin net might be failed, grandparents may also offline
                 });
             }
@@ -211,7 +219,8 @@ namespace Skynet.Models
             // grand parents and brothers will not be processed, just wait for request from parents
         }
 
-        public NodeInfo getInfo() {
+        public NodeInfo getInfo()
+        {
             return new NodeInfo
             {
                 uuid = selfNode.uuid,
@@ -234,8 +243,10 @@ namespace Skynet.Models
         }
 
         public async Task<NodeResponse> sendRequest(NodeId target, string content, string method,
-            string url, long time = 0) {
-            ToxResponse response = await RequestProxy.sendRequest(mSkynet, new ToxRequest {
+            string url, long time = 0)
+        {
+            ToxResponse response = await RequestProxy.sendRequest(mSkynet, new ToxRequest
+            {
                 uuid = Guid.NewGuid().ToString(),
                 url = url,
                 method = method,
@@ -253,23 +264,25 @@ namespace Skynet.Models
         }
     }
 
-    public class NodeId: IEquatable<NodeId>
+    public class NodeId : IEquatable<NodeId>
     {
         public string uuid { get; set; }
         public string toxid { get; set; }
 
         public bool Equals(NodeId other)
         {
-            return uuid == other.uuid && toxid == other.toxid;       
+            return uuid == other.uuid && toxid == other.toxid;
         }
 
         override
-        public string ToString() {
+        public string ToString()
+        {
             return uuid;
         }
     }
 
-    public class NodeInfo {
+    public class NodeInfo
+    {
         public string uuid { get; set; }
         public NodeId parent { get; set; }
         public NodeId grandParents { get; set; }
@@ -289,7 +302,8 @@ namespace Skynet.Models
         public long brotherModifiedTime { get; set; }
     }
 
-    public class NodeLock {
+    public class NodeLock
+    {
         public bool isLocked;
         public NodeId from;
     }

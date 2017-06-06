@@ -13,7 +13,8 @@ namespace Skynet.Base.Contollers
     {
         [Route("api/node/{nodeId}/grandParents")]
         [HttpGet]
-        public NodeResponse Get(string nodeId) {
+        public NodeResponse Get(string nodeId)
+        {
             if (!Utils.Utils.isValidGuid(nodeId))
             {
                 return new NodeResponse
@@ -31,8 +32,9 @@ namespace Skynet.Base.Contollers
                     description = "target node cannot be found on the client",
                 };
             }
-            
-            return new NodeResponse {
+
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.grandParents),
@@ -42,7 +44,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/grandParents")]
         [HttpPut]
-        public NodeResponse Put(string nodeId, [FromBody] NodeId values) {
+        public NodeResponse Put(string nodeId, [FromBody] NodeId values)
+        {
             IEnumerable<string> requestTime = new List<string>();
             if (!Request.Headers.TryGetValues("Skynet-Time", out requestTime))
             {
@@ -99,7 +102,7 @@ namespace Skynet.Base.Contollers
                 description = "set parent success",
                 value = JsonConvert.SerializeObject(values),
                 time = reqTime,
-            };   
+            };
         }
     }
 }

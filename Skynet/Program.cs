@@ -24,7 +24,8 @@ namespace Skynet
             Node node3 = new Node(mSkynet);
             Node node2 = new Node(mSkynet2);
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 // add node1 to node2's childnodes
                 NodeResponse res = await node1.sendRequest(node2.selfNode,
                     JsonConvert.SerializeObject(node1.selfNode), "post",

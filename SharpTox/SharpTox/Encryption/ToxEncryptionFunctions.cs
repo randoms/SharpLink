@@ -6,8 +6,8 @@ namespace SharpTox.Encryption
     {
 #if POSIX
         const string dll = "libtoxencryptsave.so";
-#else 
-		const string dll = "libtox";
+#else
+        const string dll = "libtox";
 #endif
 
         [DllImport(dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "tox_derive_key_from_pass")]

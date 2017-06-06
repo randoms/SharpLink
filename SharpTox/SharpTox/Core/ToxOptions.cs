@@ -100,7 +100,8 @@ namespace SharpTox.Core
         /// <summary>
         /// HolePunchingEnabled
         /// </summary>
-        public bool HolePunchingEnabled {
+        public bool HolePunchingEnabled
+        {
             get { return _options.HolePunchingEnabled; }
             set { _options.HolePunchingEnabled = value; }
         }
@@ -192,7 +193,7 @@ namespace SharpTox.Core
                 Marshal.FreeHGlobal(SaveData);
         }
 
-		internal delegate void ToxLogCallback(ToxHandle tox, ToxLogLevel level, string file, uint line, string func, string message, IntPtr userdata);
+        internal delegate void ToxLogCallback(ToxHandle tox, ToxLogLevel level, string file, uint line, string func, string message, IntPtr userdata);
 
         [MarshalAs(UnmanagedType.I1)]
         internal bool Ipv6Enabled;
@@ -200,8 +201,8 @@ namespace SharpTox.Core
         [MarshalAs(UnmanagedType.I1)]
         internal bool UdpEnabled;
 
-		[MarshalAs(UnmanagedType.I1)]
-		internal bool LocalDiscoveryEnabled;
+        [MarshalAs(UnmanagedType.I1)]
+        internal bool LocalDiscoveryEnabled;
 
         internal ToxProxyType ProxyType;
 
@@ -213,13 +214,13 @@ namespace SharpTox.Core
         internal ushort EndPort;
         internal ushort TcpPort;
 
-		[MarshalAs(UnmanagedType.I1)]
-		internal bool HolePunchingEnabled;
+        [MarshalAs(UnmanagedType.I1)]
+        internal bool HolePunchingEnabled;
 
         internal ToxSaveDataType SaveDataType;
         internal IntPtr SaveData;
         internal uint SaveDataLength;
-		internal ToxLogCallback LogCallback;
-		internal IntPtr log_user_data;
+        internal ToxLogCallback LogCallback;
+        internal IntPtr log_user_data;
     }
 }

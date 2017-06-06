@@ -11,15 +11,17 @@ using System.Web.Http;
 
 namespace Skynet.Base.Contollers
 {
-    public class NodeController:ApiController
+    public class NodeController : ApiController
     {
         [Route("api/node")]
         [HttpGet]
-        public NodeResponse GetAll() {
+        public NodeResponse GetAll()
+        {
             Skynet mSkynet = Skynet.allInstance.Where(x => x.httpPort == Request.RequestUri.Port).FirstOrDefault();
             List<NodeId> nodeList = Node.AllLocalNodes.Where(x => x.mSkynet.httpPort == mSkynet.httpPort)
                 .Select(x => x.selfNode).ToList();
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(nodeList)
@@ -28,9 +30,11 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}")]
         [HttpGet]
-        public NodeResponse Get(string nodeId) {
+        public NodeResponse Get(string nodeId)
+        {
             // check if a valid nodeid
-            if (!Utils.Utils.isValidGuid(nodeId)) {
+            if (!Utils.Utils.isValidGuid(nodeId))
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.InvalidRequest,
@@ -40,14 +44,16 @@ namespace Skynet.Base.Contollers
 
             Node targetNode = Node.AllLocalNodes.Where(x => x.selfNode.uuid == nodeId).DefaultIfEmpty(null)
                 .FirstOrDefault();
-            if (targetNode == null) {
+            if (targetNode == null)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.NotFound,
                     description = "can not find target node on this client"
                 };
             }
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.getInfo()),
@@ -56,10 +62,12 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node")]
         [HttpPost]
-        public NodeResponse Post([FromBody]List<NodeId> parents) {
+        public NodeResponse Post([FromBody]List<NodeId> parents)
+        {
             Skynet mSkynet = Skynet.allInstance.Where(x => x.httpPort == Request.RequestUri.Port).FirstOrDefault();
             Node newNode = new Node(parents, mSkynet);
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(newNode.getInfo()),
@@ -68,7 +76,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}")]
         [HttpDelete]
-        public NodeResponse Delete(string nodeId) {
+        public NodeResponse Delete(string nodeId)
+        {
 
             // check if a valid nodeid
             if (!Utils.Utils.isValidGuid(nodeId))
@@ -91,7 +100,8 @@ namespace Skynet.Base.Contollers
                 };
             }
             Node.AllLocalNodes.Remove(targetNode);
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
             };

@@ -11,7 +11,8 @@ namespace Skynet.Utils
 {
     public class Utils
     {
-        public static bool isValidGuid(string guid) {
+        public static bool isValidGuid(string guid)
+        {
             Guid mGuid;
             return Guid.TryParse(guid, out mGuid);
         }
@@ -45,7 +46,8 @@ namespace Skynet.Utils
             return (long)timeSpan.TotalMilliseconds;
         }
 
-        public static byte[] joinBytes(byte[] one, byte[] two) {
+        public static byte[] joinBytes(byte[] one, byte[] two)
+        {
             if (one == null)
                 return (byte[])two.Clone();
             if (two == null)
@@ -56,15 +58,17 @@ namespace Skynet.Utils
             return res;
         }
 
-        public static byte[] subArray(byte[] array, int startIndex) {
+        public static byte[] subArray(byte[] array, int startIndex)
+        {
             byte[] res = new byte[array.Length - startIndex];
-            for (int i = 0; i < res.Length; i++) {
+            for (int i = 0; i < res.Length; i++)
+            {
                 res[i] = array[startIndex + i];
             }
             return res;
         }
 
-        public static byte[] subArray(byte[] array,int startIndex, int length)
+        public static byte[] subArray(byte[] array, int startIndex, int length)
         {
             byte[] res = new byte[length];
             for (int i = startIndex; i < startIndex + length; i++)
@@ -73,55 +77,59 @@ namespace Skynet.Utils
             }
             return res;
         }
-        
-		private static StreamWriter streamwriter = null;
-		private static object loglock = new object();
-		private static string logFilename = "log.txt";
 
-		public static void setLogFile(string filename){
-			logFilename = filename;
-		}
+        private static StreamWriter streamwriter = null;
+        private static object loglock = new object();
+        private static string logFilename = "log.txt";
 
-		public static void Log(string detail) {
-			#if(DEBUG)
-			lock (loglock) {
-				if (streamwriter == null)
-				{
-					FileStream fs = new FileStream(logFilename, FileMode.Create);
-					streamwriter = new StreamWriter(fs);
-					streamwriter.AutoFlush = true;
-				}
-				streamwriter.WriteLine("Time: " + UnixTimeNow() + ", " + detail);
-				streamwriter.Flush();
-			}
-			#endif
-		}
+        public static void setLogFile(string filename)
+        {
+            logFilename = filename;
+        }
+
+        public static void Log(string detail)
+        {
+#if (DEBUG)
+            lock (loglock)
+            {
+                if (streamwriter == null)
+                {
+                    FileStream fs = new FileStream(logFilename, FileMode.Create);
+                    streamwriter = new StreamWriter(fs);
+                    streamwriter.AutoFlush = true;
+                }
+                streamwriter.WriteLine("Time: " + UnixTimeNow() + ", " + detail);
+                streamwriter.Flush();
+            }
+#endif
+        }
 
         public static void Log(string detail, bool force)
         {
-			lock (loglock) {
-				if (streamwriter == null)
-				{
-					FileStream fs = new FileStream(logFilename, FileMode.Create);
-					streamwriter = new StreamWriter(fs);
-					streamwriter.AutoFlush = true;
-				}
-				streamwriter.WriteLine("Time: " + UnixTimeNow() + ", " + detail);
-				streamwriter.Flush();
-			}
+            lock (loglock)
+            {
+                if (streamwriter == null)
+                {
+                    FileStream fs = new FileStream(logFilename, FileMode.Create);
+                    streamwriter = new StreamWriter(fs);
+                    streamwriter.AutoFlush = true;
+                }
+                streamwriter.WriteLine("Time: " + UnixTimeNow() + ", " + detail);
+                streamwriter.Flush();
+            }
         }
 
         public static string GetLocalIPAddress()
-		{
-			var host = Dns.GetHostEntry(Dns.GetHostName());
-			foreach (var ip in host.AddressList)
-			{
-				if (ip.AddressFamily == AddressFamily.InterNetwork)
-				{
-					return ip.ToString();
-				}
-			}
-			return "";
-		}
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            return "";
+        }
     }
 }

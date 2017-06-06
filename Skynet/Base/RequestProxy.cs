@@ -19,7 +19,8 @@ namespace Skynet.Base
     public class RequestProxy
     {
 
-        public static ToxRequest toNodeRequest(HttpRequestMessage req) {
+        public static ToxRequest toNodeRequest(HttpRequestMessage req)
+        {
             return new ToxRequest
             {
                 url = req.RequestUri.ToString(),
@@ -34,10 +35,12 @@ namespace Skynet.Base
             };
         }
 
-        public static async Task<ToxResponse> sendRequest(Skynet host, ToxRequest req) {
+        public static async Task<ToxResponse> sendRequest(Skynet host, ToxRequest req)
+        {
 
             // if req is not send to local node
-            if (host.tox.Id.ToString() != req.toToxId) {
+            if (host.tox.Id.ToString() != req.toToxId)
+            {
                 bool mResStatus = false;
                 return await host.sendRequest(new ToxId(req.toToxId), req, out mResStatus);
             }
@@ -54,7 +57,8 @@ namespace Skynet.Base
             request.ContentType = "application/json";
 
             List<string> allowedMethods = new List<string> { "POST", "PUT", "PATCH" };
-            if (allowedMethods.Any(x => x == req.method.ToUpper())) {
+            if (allowedMethods.Any(x => x == req.method.ToUpper()))
+            {
                 // only the above methods are allowed to add body data
                 using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                 {

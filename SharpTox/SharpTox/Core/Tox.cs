@@ -1037,7 +1037,7 @@ namespace SharpTox.Core
 
             return null;
         }
-        
+
         /// <summary>
         /// Send a file transmission request.
         /// </summary>

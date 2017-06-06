@@ -135,7 +135,7 @@ namespace SharpTox.Core
 
         public class FileControlEventArgs : FileBaseEventArgs
         {
-            public ToxFileControl Control{get;private set;}
+            public ToxFileControl Control { get; private set; }
 
             public FileControlEventArgs(int friendNumber, int fileNumber, ToxFileControl control)
                 : base(friendNumber, fileNumber)
@@ -160,7 +160,7 @@ namespace SharpTox.Core
 
         public class FriendPacketEventArgs : FriendBaseEventArgs
         {
-            public byte[] Data{get;set;}
+            public byte[] Data { get; set; }
 
             public FriendPacketEventArgs(int friendNumber, byte[] data)
                 : base(friendNumber)

@@ -14,7 +14,8 @@ namespace Skynet.Base.Contollers
     {
         [Route("api/node/{nodeId}/childNodes")]
         [HttpGet]
-        public NodeResponse GetAll(string nodeId) {
+        public NodeResponse GetAll(string nodeId)
+        {
             if (!Utils.Utils.isValidGuid(nodeId))
             {
                 return new NodeResponse
@@ -93,10 +94,12 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/childNodes")]
         [HttpPost]
-        public NodeResponse Post(string nodeId, [FromBody]NodeId newNode) {
+        public NodeResponse Post(string nodeId, [FromBody]NodeId newNode)
+        {
 
             IEnumerable<string> requestTime = new List<string>();
-            if (!Request.Headers.TryGetValues("Skynet-Time", out requestTime)) {
+            if (!Request.Headers.TryGetValues("Skynet-Time", out requestTime))
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.InvalidRequest,
@@ -157,10 +160,12 @@ namespace Skynet.Base.Contollers
             // add new child node
             targetNode.childNodes.Add(newNode);
             targetNode.childNodesModifiedTime = reqTime;
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 await BoardCastNodeChanges(targetNode);
             });
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "add child node success",
                 value = JsonConvert.SerializeObject(newNode),
@@ -170,7 +175,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/childNodes/{childNodeId}")]
         [HttpDelete]
-        public NodeResponse Delete(string nodeId, string childNodeId) {
+        public NodeResponse Delete(string nodeId, string childNodeId)
+        {
 
             IEnumerable<string> requestTime = new List<string>();
             if (!Request.Headers.TryGetValues("Skynet-Time", out requestTime))
@@ -232,11 +238,13 @@ namespace Skynet.Base.Contollers
             targetNode.childNodesModifiedTime = reqTime;
             targetNode.childNodes.Remove(childNode);
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 await BoardCastNodeChanges(targetNode);
             });
 
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "child node has been removed.",
                 time = reqTime,
@@ -245,7 +253,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/childNodes/{childNodeId}")]
         [HttpPut]
-        public NodeResponse Put(string nodeId, string childNodeId, [FromBody] NodeId newNode) {
+        public NodeResponse Put(string nodeId, string childNodeId, [FromBody] NodeId newNode)
+        {
 
             IEnumerable<string> requestTime = new List<string>();
             if (!Request.Headers.TryGetValues("Skynet-Time", out requestTime))
@@ -308,22 +317,26 @@ namespace Skynet.Base.Contollers
             targetNode.childNodes.Remove(childNode);
             targetNode.childNodes.Add(newNode);
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 await BoardCastNodeChanges(targetNode);
             });
 
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success changed target childnode",
                 time = reqTime,
             };
         }
 
-        public async Task BoardCastNodeChanges(Node targetNode) {
+        public async Task BoardCastNodeChanges(Node targetNode)
+        {
             // we need to boardcast node changes to its childNodes
             await Task.Run(() =>
             {
-                targetNode.childNodes.ForEach((nodeId) => {
+                targetNode.childNodes.ForEach((nodeId) =>
+                {
                     bool status = false;
                     targetNode.mSkynet.sendRequest(new ToxId(nodeId.toxid), new ToxRequest
                     {

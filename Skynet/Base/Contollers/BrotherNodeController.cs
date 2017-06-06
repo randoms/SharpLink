@@ -9,14 +9,16 @@ using System.Web.Http;
 
 namespace Skynet.Base.Contollers
 {
-    public class BrotherNodeController: ApiController
+    public class BrotherNodeController : ApiController
     {
         [Route("api/node/{nodeId}/brotherNodes")]
         [HttpGet]
-        public NodeResponse GetAll(string nodeId) {
+        public NodeResponse GetAll(string nodeId)
+        {
             Skynet host = Skynet.allInstance.Where(x => x.httpPort == Request.RequestUri.Port).FirstOrDefault();
             // check if a valid nodeid
-            if (!Utils.Utils.isValidGuid(nodeId)) {
+            if (!Utils.Utils.isValidGuid(nodeId))
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.InvalidRequest,
@@ -24,14 +26,16 @@ namespace Skynet.Base.Contollers
                 };
             }
             Node targetNode = Node.AllLocalNodes.Where(x => x.selfNode.uuid == nodeId).DefaultIfEmpty(null).FirstOrDefault();
-            if (targetNode == null) {
+            if (targetNode == null)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.NotFound,
                     description = "target node can not be found on the client",
                 };
             }
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.brotherNodes),
@@ -41,7 +45,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/brotherNodes/{brotherNodeId}")]
         [HttpGet]
-        public NodeResponse Get(string nodeId, string brotherNodeId) {
+        public NodeResponse Get(string nodeId, string brotherNodeId)
+        {
             Skynet host = Skynet.allInstance.Where(x => x.httpPort == Request.RequestUri.Port).FirstOrDefault();
             // check if a valid nodeid
             if (!Utils.Utils.isValidGuid(nodeId) || !Utils.Utils.isValidGuid(brotherNodeId))
@@ -62,7 +67,8 @@ namespace Skynet.Base.Contollers
                 };
             }
             NodeId brotherNode = targetNode.brotherNodes.Where(x => x.uuid == brotherNodeId).DefaultIfEmpty(null).FirstOrDefault();
-            if (brotherNode == null) {
+            if (brotherNode == null)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.NotFound,
@@ -70,7 +76,8 @@ namespace Skynet.Base.Contollers
                 };
             }
 
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(brotherNode),
@@ -80,11 +87,13 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/brotherNodes")]
         [HttpPost]
-        public NodeResponse Post(string nodeId, [FromBody] NodeId newBrother) {
+        public NodeResponse Post(string nodeId, [FromBody] NodeId newBrother)
+        {
             IEnumerable<string> headerValues = new List<string>();
             IEnumerable<string> requestTime = new List<string>();
-            if (!Request.Headers.TryGetValues("From-Node-Id", out headerValues) 
-                || !Request.Headers.TryGetValues("Skynet-Time", out requestTime)) {
+            if (!Request.Headers.TryGetValues("From-Node-Id", out headerValues)
+                || !Request.Headers.TryGetValues("Skynet-Time", out requestTime))
+            {
                 // can not found from headers
                 return new NodeResponse
                 {
@@ -112,7 +121,8 @@ namespace Skynet.Base.Contollers
                 };
             }
 
-            if (targetNode.parent == null || headerValues.FirstOrDefault() != targetNode.parent.uuid) {
+            if (targetNode.parent == null || headerValues.FirstOrDefault() != targetNode.parent.uuid)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.NoPermission,
@@ -120,7 +130,8 @@ namespace Skynet.Base.Contollers
                 };
             }
 
-            if (targetNode.brotherNodes.Count >= 10) {
+            if (targetNode.brotherNodes.Count >= 10)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.TargetIsFull,
@@ -135,7 +146,8 @@ namespace Skynet.Base.Contollers
                     description = "target already existed"
                 };
 
-            if (targetNode.nodeChangeLock.isLocked) {
+            if (targetNode.nodeChangeLock.isLocked)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.TargetLocked,
@@ -143,8 +155,9 @@ namespace Skynet.Base.Contollers
                 };
             }
 
-            if (long.Parse(requestTime.DefaultIfEmpty("0").FirstOrDefault()) 
-                < targetNode.brotherModifiedTime) {
+            if (long.Parse(requestTime.DefaultIfEmpty("0").FirstOrDefault())
+                < targetNode.brotherModifiedTime)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.OutOfDate,
@@ -153,7 +166,8 @@ namespace Skynet.Base.Contollers
             }
 
             targetNode.brotherNodes.Add(newBrother);
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.brotherNodes),
@@ -162,7 +176,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/brotherNodes")]
         [HttpPut]
-        public async Task<NodeResponse> Put(string nodeId) {
+        public async Task<NodeResponse> Put(string nodeId)
+        {
             List<NodeId> newBrothers = JsonConvert.DeserializeObject<List<NodeId>>(await Request.Content.ReadAsStringAsync());
             IEnumerable<string> headerValues = new List<string>();
             IEnumerable<string> requestTime = new List<string>();
@@ -213,7 +228,8 @@ namespace Skynet.Base.Contollers
                     description = "target brother nodes is full"
                 };
             }
-            if (targetNode.nodeChangeLock.isLocked) {
+            if (targetNode.nodeChangeLock.isLocked)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.TargetLocked,
@@ -231,7 +247,8 @@ namespace Skynet.Base.Contollers
             }
             targetNode.brotherModifiedTime = reqTime;
             targetNode.brotherNodes = newBrothers;
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.brotherNodes),
@@ -241,7 +258,8 @@ namespace Skynet.Base.Contollers
 
         [Route("api/node/{nodeId}/brotherNodes/{brotherNodeId}")]
         [HttpDelete]
-        public NodeResponse Delete(string nodeId, string brotherNodeId) {
+        public NodeResponse Delete(string nodeId, string brotherNodeId)
+        {
             IEnumerable<string> headerValues = new List<string>();
             IEnumerable<string> requestTime = new List<string>();
             if (!Request.Headers.TryGetValues("From-Node-Id", out headerValues)
@@ -282,7 +300,7 @@ namespace Skynet.Base.Contollers
                     description = "you do not have permission to access change brother node",
                 };
             }
-            
+
             if (targetNode.nodeChangeLock.isLocked)
             {
                 return new NodeResponse
@@ -293,7 +311,8 @@ namespace Skynet.Base.Contollers
             }
 
             NodeId brotherNode = targetNode.brotherNodes.Where(x => x.uuid == brotherNodeId).DefaultIfEmpty(null).FirstOrDefault();
-            if (brotherNode == null) {
+            if (brotherNode == null)
+            {
                 return new NodeResponse
                 {
                     statusCode = NodeResponseCode.NotFound,
@@ -313,7 +332,8 @@ namespace Skynet.Base.Contollers
 
             targetNode.brotherModifiedTime = reqTime;
             targetNode.brotherNodes.Remove(brotherNode);
-            return new NodeResponse {
+            return new NodeResponse
+            {
                 statusCode = NodeResponseCode.OK,
                 description = "success",
                 value = JsonConvert.SerializeObject(targetNode.brotherNodes),

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Skynet.Models
 {
-    
+
 
     class Package
     {
@@ -20,7 +20,8 @@ namespace Skynet.Models
         private static Package mStaticPackage = null;
 
 
-        public byte[] toBytes() {
+        public byte[] toBytes()
+        {
             // uuid 16 bytes
             // content length 2 bytes
             // total count 2 bytes
@@ -28,7 +29,8 @@ namespace Skynet.Models
             byte[] packageBytes = new byte[16 + 2 + 2 + 2 + 4 + 4 + content.Length];
 
             byte[] uuidbytes = Guid.Parse(uuid).ToByteArray();
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 16; i++)
+            {
                 packageBytes[i] = uuidbytes[i];
             }
             packageBytes[16] = (byte)(content.Length / 256);
@@ -41,15 +43,18 @@ namespace Skynet.Models
             totalSizeBytes.CopyTo(packageBytes, 22); // 22-25
             byte[] startIndexBytes = BitConverter.GetBytes(startIndex);
             startIndexBytes.CopyTo(packageBytes, 26); // 26-29
-            for (int i = 30; i < packageBytes.Length; i++) {
+            for (int i = 30; i < packageBytes.Length; i++)
+            {
                 packageBytes[i] = content[i - 30];
             }
             return packageBytes;
         }
 
-        public static Package fromBytes(byte[] data) {
+        public static Package fromBytes(byte[] data)
+        {
             byte[] uuidbytes = new byte[16];
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 16; i++)
+            {
                 uuidbytes[i] = data[i];
             }
             Package mPackage = new Package();
@@ -59,19 +64,21 @@ namespace Skynet.Models
             mPackage.totalSize = BitConverter.ToUInt32(data, 22);
             mPackage.startIndex = BitConverter.ToUInt32(data, 26);
             mPackage.content = new byte[data[16] * 256 + data[17]];
-            for (int i = 0; i < mPackage.content.Length; i++) {
+            for (int i = 0; i < mPackage.content.Length; i++)
+            {
                 mPackage.content[i] = data[30 + i];
             }
             return mPackage;
         }
 
-        public static Package fromBytesStatic(byte[] data) {
+        public static Package fromBytesStatic(byte[] data)
+        {
             byte[] uuidbytes = new byte[16];
             for (int i = 0; i < 16; i++)
             {
                 uuidbytes[i] = data[i];
             }
-            if(mStaticPackage == null)
+            if (mStaticPackage == null)
                 mStaticPackage = new Package();
             mStaticPackage.uuid = new Guid(uuidbytes).ToString();
             mStaticPackage.totalCount = data[18] * 256 + data[19];
@@ -88,5 +95,5 @@ namespace Skynet.Models
         }
     }
 
-    
+
 }

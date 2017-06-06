@@ -13,7 +13,8 @@ namespace Skynet.Base
     {
         public static void ForgetOrThrow(this Task task)
         {
-            task.ContinueWith((t) => {
+            task.ContinueWith((t) =>
+            {
                 Console.WriteLine(t.Exception);
                 Utils.Utils.Log(t.Exception.ToString());
             }, TaskContinuationOptions.OnlyOnFaulted);
@@ -70,7 +71,8 @@ namespace Skynet.Base
             Utils.Utils.Log("ID: " + id);
 
             // Log tox online status
-            Task.Factory.StartNew(() => {
+            Task.Factory.StartNew(() =>
+            {
                 var offLineCount = 0;
                 while (true)
                 {
@@ -246,7 +248,8 @@ namespace Skynet.Base
             if (e.Status == ToxConnectionStatus.None)
             {
                 // find target friend in all nodes
-                Node.AllLocalNodes.ForEach((mnode) => {
+                Node.AllLocalNodes.ForEach((mnode) =>
+                {
                     List<NodeId> relatedNodes = mnode.childNodes.Concat(mnode.brotherNodes).ToList();
                     if (mnode.parent != null)
                         relatedNodes.Add(mnode.parent);
@@ -254,7 +257,8 @@ namespace Skynet.Base
                         relatedNodes.Add(mnode.grandParents);
                     relatedNodes.
                     Where(x => x.toxid == tox.Id.ToString())
-                    .ToList().ForEach(nodeToRemove => {
+                    .ToList().ForEach(nodeToRemove =>
+                    {
                         mnode.relatedNodesStatusChanged(nodeToRemove);
                     });
                 });
@@ -508,7 +512,8 @@ namespace Skynet.Base
             catch (ObjectDisposedException)
             {
                 status = false;
-                return Task.Factory.StartNew<ToxResponse>(() => {
+                return Task.Factory.StartNew<ToxResponse>(() =>
+                {
                     return null;
                 }, TaskCreationOptions.LongRunning);
             }
@@ -524,7 +529,8 @@ namespace Skynet.Base
             bool resFlag = false;
             lock (mPendingReqLock)
             {
-                mPendingReqList.Add(req.uuid, (response) => {
+                mPendingReqList.Add(req.uuid, (response) =>
+                {
                     mRes = response;
                     lock (reslock)
                     {
@@ -556,7 +562,8 @@ namespace Skynet.Base
                 if (!res)
                 {
                     status = false;
-                    return Task.Factory.StartNew<ToxResponse>(() => {
+                    return Task.Factory.StartNew<ToxResponse>(() =>
+                    {
                         mPendingReqList.Remove(req.uuid);
                         return null;
                     }, TaskCreationOptions.LongRunning);
@@ -566,7 +573,8 @@ namespace Skynet.Base
 
             Utils.Utils.Log("Event: return async, ReqId: " + req.uuid);
 
-            return Task.Factory.StartNew(() => {
+            return Task.Factory.StartNew(() =>
+            {
                 Task.Run(() =>
                 {
                     // timeout count thread

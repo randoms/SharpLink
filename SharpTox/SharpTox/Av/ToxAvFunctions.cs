@@ -8,8 +8,8 @@ namespace SharpTox.Av
     {
 #if POSIX
 		const string dll = "libtoxav.so";
-#else 
-		const string dll = "libtox";
+#else
+        const string dll = "libtox";
 #endif
 
         [DllImport(dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "toxav_version_major")]
