@@ -68,7 +68,7 @@ namespace SharpLink
 
         private async Task<bool> Connect()
         {
-            mSkynet.addNewReqListener(newReqListener);
+            mSkynet.addNewReqListener(clientId, newReqListener);
             Utils.Log("Event: callback added ClientID: " + clientId);
             bool status;
             string requuid = Guid.NewGuid().ToString();
@@ -87,7 +87,7 @@ namespace SharpLink
             }, out status);
             if (res == null || Encoding.UTF8.GetString(res.content) == "failed")
             {
-                mSkynet.removeNewReqListener(newReqListener);
+                mSkynet.removeNewReqListener(clientId);
                 Utils.Log("Event: Connect failed, ReqId: " + requuid + ", ClientId: " + clientId);
                 return false;
             }
@@ -126,7 +126,7 @@ namespace SharpLink
             LinkClient mLinkClient = new LinkClient(mSkynet, targetToxId, null, 0);
             mLinkClient.serverId = targetNodeID;
             mLinkClient.serverToxId = new ToxId(targetToxId);
-            mLinkClient.mSkynet.addNewReqListener(mLinkClient.newReqListener);
+            mLinkClient.mSkynet.addNewReqListener(mLinkClient.clientId, mLinkClient.newReqListener);
             return mLinkClient;
         }
 
@@ -188,6 +188,7 @@ namespace SharpLink
             {
                 Utils.Log("Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
                 msgHandler(req.content);
+                Utils.Log("Event: Received Message Complete, ClientId: " + clientId + ", MessageId: " + req.uuid);
             }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
@@ -197,9 +198,13 @@ namespace SharpLink
             }
         }
 
+        private void sendMessageLocal(byte[] msg) {
+
+        }
+
         public void Close()
         {
-            mSkynet.removeNewReqListener(newReqListener);
+            mSkynet.removeNewReqListener(clientId);
         }
 
         public void CloseRemote()

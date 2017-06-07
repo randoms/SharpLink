@@ -25,13 +25,14 @@ namespace Skynet.Base
     {
 
         public Tox tox;
+        object mPackageCacheLock = new object();
         private Dictionary<string, byte[]> mPackageCache = new Dictionary<string, byte[]>();
         object mPendingReqLock = new object();
         private Dictionary<string, Action<ToxResponse>> mPendingReqList = new Dictionary<string, Action<ToxResponse>>();
         public static int MAX_MSG_LENGTH = 1024;
-        private List<string> connectedList = new List<string>();
+        //private List<string> connectedList = new List<string>();
         public int httpPort;
-        private List<Action<ToxRequest>> reqCallbacks = new List<Action<ToxRequest>>();
+        private Dictionary<string, Action<ToxRequest>>  reqCallbacks = new Dictionary<string, Action<ToxRequest>>();
         private object sendLock = new object();
         private object reqListnerLock = new object();
         private Queue<Package> reqQueue = new Queue<Package>();
@@ -39,6 +40,14 @@ namespace Skynet.Base
 
 
         public static List<Skynet> allInstance = new List<Skynet>();
+
+        bool unlockFlag = false;
+        bool blockFlag1 = false;
+        bool blockFlag2 = false;
+        bool blockFlag3 = false;
+        bool blockFlag4 = false;
+        bool blockFlag5 = false;
+        string currnetProcessMessage;
 
         public Skynet(string filename = "")
         {
@@ -69,6 +78,34 @@ namespace Skynet.Base
             string id = tox.Id.ToString();
             Console.WriteLine("ID: {0}", id);
             Utils.Utils.Log("ID: " + id);
+
+            var lastLockTime = DateTime.UtcNow;
+            var lastProcessTime = DateTime.UtcNow;
+
+
+            // process monitor
+            Task.Run(() =>
+            {
+                while (true) {
+                    var lockTime = (long)(DateTime.UtcNow - lastLockTime).TotalMilliseconds;
+                    var processTime = (long)(DateTime.UtcNow - lastProcessTime).TotalMilliseconds;
+                    Console.WriteLine("lockTime: " + lockTime);
+                    Console.WriteLine("processTime: " + processTime);
+                    Console.WriteLine("onlineStatus: " + tox.IsConnected);
+                    lock (reqQueueLock) {
+                        Console.WriteLine("queueSize: " + reqQueue.Count);
+                    }
+                    Console.WriteLine("unlockFlag: " + unlockFlag);
+                    Console.WriteLine("block1: " + blockFlag1);
+                    Console.WriteLine("block2: " + blockFlag2);
+                    Console.WriteLine("block3: " + blockFlag3);
+                    Console.WriteLine("block4: " + blockFlag4);
+                    Console.WriteLine("block5: " + blockFlag5);
+                    Console.WriteLine("currnetProcessMessage: " + currnetProcessMessage);
+
+                    Thread.Sleep(1000);
+                }
+            });
 
             // Log tox online status
             Task.Factory.StartNew(() =>
@@ -134,17 +171,21 @@ namespace Skynet.Base
                             Utils.Utils.Log("Event: tox is online");
                         }
                         Package processPack = null;
+                        unlockFlag = false;
                         lock (reqQueueLock)
                         {
                             if (reqQueue.Count > 0)
                             {
                                 processPack = reqQueue.Dequeue();
                             }
-
                         }
+                        unlockFlag = true;
+                        lastLockTime = DateTime.UtcNow;
+                        lastProcessTime = DateTime.UtcNow;
                         if (processPack != null)
                         {
                             newReqReceived(processPack);
+                            lastProcessTime = DateTime.UtcNow;
                         }
                         else
                             Thread.Sleep(1);
@@ -176,19 +217,19 @@ namespace Skynet.Base
             tox.GetData().Save(filename);
         }
 
-        public void addNewReqListener(Action<ToxRequest> cb)
+        public void addNewReqListener(string nodeid, Action<ToxRequest> cb)
         {
             lock (reqListnerLock)
             {
-                reqCallbacks.Add(cb);
+                reqCallbacks.Add(nodeid, cb);   
             }
         }
 
-        public void removeNewReqListener(Action<ToxRequest> cb)
+        public void removeNewReqListener(string nodeid)
         {
             lock (reqListnerLock)
             {
-                reqCallbacks.Remove(cb);
+                reqCallbacks.Remove(nodeid);
             }
         }
 
@@ -205,7 +246,6 @@ namespace Skynet.Base
                 receivedData[i] = e.Data[i + 1];
             }
             Package receivedPackage = Package.fromBytesStatic(receivedData);
-            Utils.Utils.Log("Event: Received package, PackageId:" + receivedPackage.uuid);
             if (receivedPackage.currentCount == 0)
             {
                 if (receivedPackage.totalCount == 1)
@@ -218,11 +258,16 @@ namespace Skynet.Base
                 }
                 byte[] fullSizeContent = new byte[receivedPackage.totalSize];
                 receivedPackage.content.CopyTo(fullSizeContent, 0);
-                mPackageCache.Add(receivedPackage.uuid, fullSizeContent);
+                lock (mPackageCacheLock) {
+                    mPackageCache.Add(receivedPackage.uuid, fullSizeContent);
+                }
+                
             }
             else if (receivedPackage.currentCount != receivedPackage.totalCount - 1)
             {
-                receivedPackage.content.CopyTo(mPackageCache[receivedPackage.uuid], receivedPackage.startIndex);
+                lock (mPackageCacheLock) {
+                    receivedPackage.content.CopyTo(mPackageCache[receivedPackage.uuid], receivedPackage.startIndex);
+                }
             }
             else if (receivedPackage.currentCount == receivedPackage.totalCount - 1)
             {
@@ -245,6 +290,7 @@ namespace Skynet.Base
 
         void tox_OnFriendConnectionStatusChanged(object sender, ToxEventArgs.FriendConnectionStatusEventArgs e)
         {
+            Console.WriteLine("Friend status changed");
             if (e.Status == ToxConnectionStatus.None)
             {
                 // find target friend in all nodes
@@ -298,13 +344,25 @@ namespace Skynet.Base
 
         void newReqReceived(Package receivedPackage)
         {
+            blockFlag1 = true;
+            blockFlag2 = true;
+            blockFlag3 = true;
+            blockFlag4 = true;
+            blockFlag5 = true;
+
             byte[] mcontentCache = new byte[receivedPackage.totalSize];
-            if (mPackageCache.ContainsKey(receivedPackage.uuid))
-            {
-                mcontentCache = mPackageCache[receivedPackage.uuid];
-                mPackageCache.Remove(receivedPackage.uuid);
+            lock (mPackageCacheLock) {
+                if (mPackageCache.ContainsKey(receivedPackage.uuid))
+                {
+                    mcontentCache = mPackageCache[receivedPackage.uuid];
+                    mPackageCache.Remove(receivedPackage.uuid);
+                }
             }
+
+            blockFlag1 = false;
             receivedPackage.content.CopyTo(mcontentCache, receivedPackage.startIndex);
+            Console.WriteLine("received package uuid: " + receivedPackage.uuid);
+            blockFlag2 = false;
             // check if this is a response
             lock (mPendingReqLock)
             {
@@ -312,27 +370,32 @@ namespace Skynet.Base
                 {
                     mPendingReqList[receivedPackage.uuid](ToxResponse.fromBytes(mcontentCache));
                     mPendingReqList.Remove(receivedPackage.uuid);
+                    blockFlag3 = false;
+                    blockFlag4 = false;
+                    blockFlag5 = false;
                     return;
                 }
             }
+            blockFlag3 = false;
             ToxRequest newReq = ToxRequest.fromBytes(mcontentCache);
             if (newReq == null)
             {
                 Utils.Utils.Log("Event: Invalid Request Data: receivedPackage " + receivedPackage.uuid);
+                blockFlag4 = false;
+                blockFlag5 = false;
                 return;
             }
-            List<Action<ToxRequest>> tempReqList;
-            lock (reqListnerLock)
-            {
-                tempReqList = new List<Action<ToxRequest>>(reqCallbacks);
-            }
             Utils.Utils.Log("Event: Start callbacks");
-            foreach (var cb in tempReqList)
-            {
-                Utils.Utils.Log("Event: Begin Process MessageID: " + newReq.uuid);
-                if (newReq.url == "/msg")
-                    Utils.Utils.Log("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
-                cb(newReq);
+            Utils.Utils.Log("Event: Begin Process MessageID: " + newReq.uuid);
+            if (newReq.url == "/msg")
+                Utils.Utils.Log("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
+            lock (reqListnerLock) {
+                blockFlag4 = false;
+                if (reqCallbacks.Keys.Contains(newReq.toNodeId)) {
+                    currnetProcessMessage = newReq.uuid;
+                    reqCallbacks[newReq.toNodeId](newReq);
+                }
+                blockFlag5 = false;
             }
             Utils.Utils.Log("Event: End callbacks");
         }
@@ -375,36 +438,39 @@ namespace Skynet.Base
                         friendNum = tox.GetFriendByPublicKey(toxkey);
                     }
 
-                    int waitCount = 0;
-                    int maxCount = 500;
-                    if (connectedList.IndexOf(toxkey.GetString()) == -1)
-                        maxCount = 200 * 1000; // first time wait for 200s
-                    while (tox.GetFriendConnectionStatus(friendNum) == ToxConnectionStatus.None && waitCount < maxCount)
-                    {
-                        if (waitCount % 1000 == 0)
-                        {
-                            Utils.Utils.Log("Event: target is offline " + waitCount / 1000, true);
-                            if (timeout != 0 && waitCount / 1000 > timeout)
-                            {
-                                connectedList.Remove(toxkey.GetString());
-                                tox.DeleteFriend(friendNum);
-                                return false;
-                            }
-                        }
-                        waitCount += 10;
-                        Thread.Sleep(10);
-                    }
-                    if (waitCount == maxCount)
-                    {
-                        Utils.Utils.Log("Event: Connect Failed", true);
-                        connectedList.Remove(toxkey.GetString());
-                        tox.DeleteFriend(friendNum);
+                    //int waitCount = 0;
+                    //int maxCount = 500;
+                    //if (connectedList.IndexOf(toxkey.GetString()) == -1)
+                    //    maxCount = 200 * 1000; // first time wait for 200s
+                    //while (tox.GetFriendConnectionStatus(friendNum) == ToxConnectionStatus.None && waitCount < maxCount)
+                    //{
+                    //    if (waitCount % 1000 == 0)
+                    //    {
+                    //        Utils.Utils.Log("Event: target is offline " + waitCount / 1000, true);
+                    //        if (timeout != 0 && waitCount / 1000 > timeout)
+                    //        {
+                    //            connectedList.Remove(toxkey.GetString());
+                    //            tox.DeleteFriend(friendNum);
+                    //            return false;
+                    //        }
+                    //    }
+                    //    waitCount += 10;
+                    //    Thread.Sleep(10);
+                    //}
+                    //if (waitCount == maxCount)
+                    //{
+                    //    Utils.Utils.Log("Event: Connect Failed", true);
+                    //    connectedList.Remove(toxkey.GetString());
+                    //    tox.DeleteFriend(friendNum);
+                    //    return false;
+                    //}
+                    //if (connectedList.IndexOf(toxkey.GetString()) == -1)
+                    //{
+                    //    connectedList.Add(toxkey.GetString());
+                    //}
+
+                    if (tox.GetFriendConnectionStatus(friendNum) == ToxConnectionStatus.None)
                         return false;
-                    }
-                    if (connectedList.IndexOf(toxkey.GetString()) == -1)
-                    {
-                        connectedList.Add(toxkey.GetString());
-                    }
 
                     var mesError = new ToxErrorFriendCustomPacket();
                     // retry send message
@@ -421,10 +487,10 @@ namespace Skynet.Base
                         }
 
                         Utils.Utils.Log("Event: " + mesError, true);
-                        Console.WriteLine("Event: " + mesError);
+                        Console.WriteLine(Utils.Utils.UnixTimeNow() +  "Event: " + mesError);
                         if (mesError == ToxErrorFriendCustomPacket.SendQ)
                         {
-                            Thread.Sleep(50);
+                            Thread.Sleep(100);
                             continue;
                         }
                         retryCount++;
@@ -433,7 +499,6 @@ namespace Skynet.Base
                     }
                     if (retryCount == 60)
                     {
-                        connectedList.Remove(toxkey.GetString());
                         tox.DeleteFriend(friendNum);
                         return false;
                     }
@@ -441,10 +506,6 @@ namespace Skynet.Base
                     return true;
                 }
             }
-            //catch (ObjectDisposedException)
-            //{
-            //    return false;
-            //}
             catch (Exception e)
             {
                 Utils.Utils.Log(e.StackTrace, true);
@@ -564,7 +625,9 @@ namespace Skynet.Base
                     status = false;
                     return Task.Factory.StartNew<ToxResponse>(() =>
                     {
-                        mPendingReqList.Remove(req.uuid);
+                        lock (mPendingReqLock) {
+                            mPendingReqList.Remove(req.uuid);
+                        }
                         return null;
                     }, TaskCreationOptions.LongRunning);
                 }
@@ -579,16 +642,18 @@ namespace Skynet.Base
                 {
                     // timeout count thread
                     Thread.Sleep(timeout * 1000);
-                    if (mPendingReqList.Keys.Contains(req.uuid))
-                    {
-                        mRes = null;
-                        mPendingReqList.Remove(req.uuid);
-                        lock (reslock)
+                    lock (mPendingReqLock) {
+                        if (mPendingReqList.Keys.Contains(req.uuid))
                         {
-                            resFlag = true;
-                            Utils.Utils.Log("Event: Callback Timeout, ReqId: " + req.uuid);
-                            Monitor.PulseAll(reslock);
-                            Utils.Utils.Log("Event: Pulse Lock, ReqId: " + req.uuid);
+                            mRes = null;
+                            mPendingReqList.Remove(req.uuid);
+                            lock (reslock)
+                            {
+                                resFlag = true;
+                                Utils.Utils.Log("Event: Callback Timeout, ReqId: " + req.uuid);
+                                Monitor.PulseAll(reslock);
+                                Utils.Utils.Log("Event: Pulse Lock, ReqId: " + req.uuid);
+                            }
                         }
                     }
                 });

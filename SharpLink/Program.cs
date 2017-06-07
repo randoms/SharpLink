@@ -81,12 +81,28 @@ namespace SharpLink
                     return;
                 }
 
+                // 连接维护程序
                 Task.Run(() =>
                 {
                     while (runningFlag)
                     {
                         IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
                         Thread.Sleep(2*1000);
+                    }
+                });
+
+                // 线程监控程序
+                Task.Run(() => {
+                    while (runningFlag)
+                    {
+                        int workerThreads, completionPortThreads;
+                        ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+                        int workerThreadsMax, completionPortThreadsMax;
+                        ThreadPool.GetMaxThreads(out workerThreadsMax, out completionPortThreadsMax);
+                        int workerThreadsMin, completionPortThreadsMin;
+                        ThreadPool.GetMinThreads(out workerThreadsMin, out completionPortThreadsMin);
+                        ThreadPool.SetMinThreads(workerThreadsMax - workerThreads + 40, workerThreadsMax - workerThreads + 40);
+                        Thread.Sleep(2000);
                     }
                 });
 
@@ -186,6 +202,7 @@ namespace SharpLink
                                 {
                                     try
                                     {
+
                                         if (clientSocket != null && clientSocket.Connected)
                                             clientSocket.Send(msg, SocketFlags.None);
                                     }
@@ -237,18 +254,18 @@ namespace SharpLink
                                 Utils.Log("Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                 mlink.CloseRemote();
                             }
-                        }).ForgetOrThrow();
+                        },TaskCreationOptions.LongRunning).ForgetOrThrow();
                     }
                 }, TaskCreationOptions.LongRunning).ForgetOrThrow();
             }
 
-            mSkynet.addNewReqListener((req) =>
+            mSkynet.addNewReqListener("", (req) =>
             {
                 // handle 
                 if (req.toNodeId == "" && req.url == "/connect")
                 {
                     Utils.Log("Event: Task Connect to " + req.fromNodeId + ", MessageId: " + req.uuid);
-                    Task.Run(() =>
+                    Task.Factory.StartNew(() =>
                     {
                         // connect to server received, create sockets
                         Utils.Log("Event: Task Started Connect to " + req.fromNodeId);
@@ -385,7 +402,7 @@ namespace SharpLink
                             var response = req.createResponse(Encoding.UTF8.GetBytes("failed"));
                             mSkynet.sendResponse(response, new ToxId(response.toToxId));
                         }
-                    }).ForgetOrThrow();
+                    }, TaskCreationOptions.LongRunning).ForgetOrThrow();
                 }
                 else if (req.toNodeId == "" && req.url == "/handshake")
                 {

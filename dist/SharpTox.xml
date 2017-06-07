@@ -1,0 +1,2130 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpTox</name>
+    </assembly>
+    <members>
+        <member name="T:SharpTox.Av.ToxAvHandle">
+            <summary>
+            Represents a handle for an instance of toxav.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAvHandle.ReleaseHandle">
+            <summary>
+            Executes toxav_kill to free the tox handle.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SharpTox.Av.ToxAvVersion">
+            <summary>
+            Represents a version of ToxAv.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAvVersion.Major">
+            <summary>
+            The major version number. Incremented when the API or ABI changes in an incompatible way.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAvVersion.Minor">
+            <summary>
+            The minor version number. Incremented when functionality is added without breaking the API or ABI. 
+            Set to 0 when the major version number is incremented.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAvVersion.Patch">
+            <summary>
+            The patch or revision number. Incremented when bugfixes are applied without changing any functionality or API or ABI.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAvVersion.Current">
+            <summary>
+            The current version of Tox. Assuming there's a libtox.dll/libtoxav.so in our PATH.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAvVersion.IsCompatible">
+            <summary>
+            Checks whether or not this version is compatible with the version of ToxAv that we're using.
+            </summary>
+            <returns>True if this version is compatible, false if it's not.</returns>
+        </member>
+        <member name="M:SharpTox.Av.ToxAvVersion.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the ToxAvVersion class.
+            </summary>
+            <param name="major">The major version number.</param>
+            <param name="minor">The minor version number.</param>
+            <param name="patch">The patch or revision number.</param>
+        </member>
+        <member name="T:SharpTox.Av.ToxAv">
+            <summary>
+            Represents an instance of toxav.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAv.Handle">
+            <summary>
+            The handle of this toxav instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Av.ToxAv.ToxHandle">
+            <summary>
+            The Tox instance that this toxav instance belongs to.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.#ctor(SharpTox.Core.ToxHandle)">
+            <summary>
+            Initialises a new instance of toxav.
+            </summary>
+            <param name="tox"></param>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.#ctor(SharpTox.Core.Tox)">
+            <summary>
+            Initialises a new instance of toxav.
+            </summary>
+            <param name="tox"></param>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.Dispose">
+            <summary>
+            Releases all resources used by this instance of tox.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.Start">
+            <summary>
+            Starts the main toxav_do loop.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.Stop">
+            <summary>
+            Stops the main toxav_do loop if it's running.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.Iterate">
+            <summary>
+            Runs the loop once in the current thread and returns the next timeout.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.AddAvGroupchat">
+            <summary>
+            Creates a new audio groupchat.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.JoinAvGroupchat(System.Int32,System.Byte[])">
+            <summary>
+            Joins an audio groupchat.
+            </summary>
+            <param name="friendNumber"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Av.ToxAv.GroupSendAudio(System.Int32,System.Int16[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sends an audio frame to a group.
+            </summary>
+            <param name="groupNumber"></param>
+            <param name="pcm"></param>
+            <param name="perframe"></param>
+            <param name="channels"></param>
+            <param name="sampleRate"></param>
+            <returns></returns>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnCallRequestReceived">
+            <summary>
+            Occurs when a friend sends a call request.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnCallStateChanged">
+            <summary>
+            Occurs when the state of a call changed.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnBitrateSuggestion">
+            <summary>
+            Occurs when a friend changed their bitrate during a call.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnVideoFrameReceived">
+            <summary>
+            Occurs when an video frame is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnAudioFrameReceived">
+            <summary>
+            Occurs when an audio frame is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Av.ToxAv.OnReceivedGroupAudio">
+            <summary>
+            Occurs when an audio frame was received from a group.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.Tox">
+            <summary>
+            Represents an instance of Tox.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Options">
+            <summary>
+            Options that are used for this instance of Tox.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.IsConnected">
+            <summary>
+            Whether or not we're connected to the DHT.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Friends">
+            <summary>
+            An array of friendnumbers of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Name">
+            <summary>
+            The nickname of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.StatusMessage">
+            <summary>
+            The status message of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Id">
+            <summary>
+            The Tox ID of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.DhtId">
+            <summary>
+            Retrieves the temporary DHT public key of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Status">
+            <summary>
+            Current user status of this Tox instance.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.Tox.Handle">
+            <summary>
+            The handle of this instance of Tox. 
+            Do not dispose this handle manually, use the Dispose method in this class instead.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.Tox.#ctor(SharpTox.Core.ToxOptions,SharpTox.Core.ToxKey)">
+            <summary>
+            Initializes a new instance of Tox. If no secret key is specified, toxcore will generate a new keypair.
+            </summary>
+            <param name="options">The options to initialize this instance of Tox with.</param>
+            <param name="secretKey">Optionally, specify the secret key to initialize this instance of Tox with. Must be ToxConstants.SecretKeySize bytes in size.</param>
+        </member>
+        <member name="M:SharpTox.Core.Tox.#ctor(SharpTox.Core.ToxOptions,SharpTox.Core.ToxData)">
+            <summary>
+            Initializes a new instance of Tox.
+            </summary>
+            <param name="options">The options to initialize this instance of Tox with.</param>
+            <param name="data">A byte array containing Tox save data.</param>
+        </member>
+        <member name="M:SharpTox.Core.Tox.#ctor(SharpTox.Core.ToxOptions,SharpTox.Core.ToxData,SharpTox.Encryption.ToxEncryptionKey)">
+            <summary>
+            Initializes a new instance of Tox.
+            </summary>
+            <param name="options">The options to initialize this instance of Tox with.</param>
+            <param name="data">A byte array containing Tox save data.</param>
+            <param name="key">The key to decrypt the given encrypted Tox profile data.</param>
+        </member>
+        <member name="M:SharpTox.Core.Tox.#ctor(SharpTox.Core.ToxOptions,SharpTox.Core.ToxData,System.String)">
+            <summary>
+            Initializes a new instance of Tox.
+            </summary>
+            <param name="options">The options to initialize this instance of Tox with.</param>
+            <param name="data">A byte array containing Tox save data.</param>
+            <param name="password">The password to decrypt the given encrypted Tox profile data.</param>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Dispose">
+            <summary>
+            Releases all resources used by this instance of Tox.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Start">
+            <summary>
+            Starts the main 'tox_iterate' loop at an interval retrieved with 'tox_iteration_interval'.
+            If you want to manage your own loop, use the Iterate method instead.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Stop">
+            <summary>
+            Stops the main tox_do loop if it's running.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Iterate">
+            <summary>
+            Runs the tox_iterate once in the current thread.
+            </summary>
+            <returns>The next timeout.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddFriend(SharpTox.Core.ToxId,System.String,SharpTox.Core.ToxErrorFriendAdd@)">
+            <summary>
+            Adds a friend to the friend list and sends a friend request.
+            </summary>
+            <param name="id">The Tox id of the friend to add.</param>
+            <param name="message">The message that will be sent along with the friend request.</param>
+            <param name="error"></param>
+            <returns>The friend number.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddFriend(SharpTox.Core.ToxId,System.String)">
+            <summary>
+            Adds a friend to the friend list and sends a friend request.
+            </summary>
+            <param name="id">The Tox id of the friend to add.</param>
+            <param name="message">The message that will be sent along with the friend request.</param>
+            <returns>The friend number.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddFriendNoRequest(SharpTox.Core.ToxKey,SharpTox.Core.ToxErrorFriendAdd@)">
+            <summary>
+            Adds a friend to the friend list without sending a friend request.
+            This method should be used to accept friend requests.
+            </summary>
+            <param name="publicKey">The public key of the friend to add.</param>
+            <param name="error"></param>
+            <returns>The friend number.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddFriendNoRequest(SharpTox.Core.ToxKey)">
+            <summary>
+            Adds a friend to the friend list without sending a friend request.
+            This method should be used to accept friend requests.
+            </summary>
+            <param name="publicKey">The public key of the friend to add.</param>
+            <returns>The friend number.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddTcpRelay(SharpTox.Core.ToxNode,SharpTox.Core.ToxErrorBootstrap@)">
+            <summary>
+            Adds a node as a TCP relay. 
+            This method can be used to initiate TCP connections to different ports on the same bootstrap node, or to add TCP relays without using them as bootstrap nodes.
+            </summary>
+            <param name="node">The node to add.</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.AddTcpRelay(SharpTox.Core.ToxNode)">
+            <summary>
+            Adds a node as a TCP relay. 
+            This method can be used to initiate TCP connections to different ports on the same bootstrap node, or to add TCP relays without using them as bootstrap nodes.
+            </summary>
+            <param name="node">The node to add.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Bootstrap(SharpTox.Core.ToxNode,SharpTox.Core.ToxErrorBootstrap@)">
+            <summary>
+            Attempts to bootstrap this Tox instance with a ToxNode. A 'getnodes' request is sent to the given node.
+            </summary>
+            <param name="node">The node to bootstrap off of.</param>
+            <param name="error"></param>
+            <returns>True if the 'getnodes' request was sent successfully.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.Bootstrap(SharpTox.Core.ToxNode)">
+            <summary>
+            Attempts to bootstrap this Tox instance with a ToxNode. A 'getnodes' request is sent to the given node.
+            </summary>
+            <param name="node">The node to bootstrap off of.</param>
+            <returns>True if the 'getnodes' request was sent successfully.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FriendExists(System.Int32)">
+            <summary>
+            Checks if there exists a friend with given friendNumber.
+            </summary>
+            <param name="friendNumber">The friend number to check.</param>
+            <returns>True if the friend exists.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendTypingStatus(System.Int32,SharpTox.Core.ToxErrorFriendQuery@)">
+            <summary>
+            Retrieves the typing status of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the typing status of.</param>
+            <param name="error"></param>
+            <returns>True if the friend is typing.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendTypingStatus(System.Int32)">
+            <summary>
+            Retrieves the typing status of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the typing status of.</param>
+            <returns>True if the friend is typing.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendByPublicKey(SharpTox.Core.ToxKey,SharpTox.Core.ToxErrorFriendByPublicKey@)">
+            <summary>
+            Retrieves the friendNumber associated with the specified public key.
+            </summary>
+            <param name="publicKey">The public key to look for.</param>
+            <param name="error"></param>
+            <returns>The friend number on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendByPublicKey(SharpTox.Core.ToxKey)">
+            <summary>
+            Retrieves the friendNumber associated with the specified public key.
+            </summary>
+            <param name="publicKey">The public key to look for.</param>
+            <returns>The friend number on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendConnectionStatus(System.Int32,SharpTox.Core.ToxErrorFriendQuery@)">
+            <summary>
+            Retrieves a friend's connection status.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the connection status of.</param>
+            <param name="error"></param>
+            <returns>The connection status on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendConnectionStatus(System.Int32)">
+            <summary>
+            Retrieves a friend's connection status.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the connection status of.</param>
+            <returns>The connection status on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.IsFriendOnline(System.Int32)">
+            <summary>
+            Check whether or not a friend is online.
+            </summary>
+            <param name="friendNumber">The friend number.</param>
+            <returns>True if the friend is online.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendPublicKey(System.Int32,SharpTox.Core.ToxErrorFriendGetPublicKey@)">
+            <summary>
+            Retrieves a friend's public key.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the public key of.</param>
+            <param name="error"></param>
+            <returns>The friend's public key on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendPublicKey(System.Int32)">
+            <summary>
+            Retrieves a friend's public key.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the public key of.</param>
+            <returns>The friend's public key on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendStatus(System.Int32,SharpTox.Core.ToxErrorFriendQuery@)">
+            <summary>
+            Retrieves a friend's current status.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the status of.</param>
+            <param name="error"></param>
+            <returns>The friend's status on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendStatus(System.Int32)">
+            <summary>
+            Retrieves a friend's current status.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the status of.</param>
+            <returns>The friend's status on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SetTypingStatus(System.Int32,System.Boolean,SharpTox.Core.ToxErrorSetTyping@)">
+            <summary>
+            Sets the typing status of this Tox instance for a friend.
+            </summary>
+            <param name="friendNumber">The friend number to set the typing status for.</param>
+            <param name="isTyping">Whether or not we're typing.</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SetTypingStatus(System.Int32,System.Boolean)">
+            <summary>
+            Sets the typing status of this Tox instance for a friend.
+            </summary>
+            <param name="friendNumber">The friend number to set the typing status for.</param>
+            <param name="isTyping">Whether or not we're typing.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SendMessage(System.Int32,System.String,SharpTox.Core.ToxMessageType,SharpTox.Core.ToxErrorSendMessage@)">
+            <summary>
+            Sends a message to a friend.
+            </summary>
+            <param name="friendNumber">The friend number to send the message to.</param>
+            <param name="message">The message to be sent. Maximum length: <see cref="F:SharpTox.Core.ToxConstants.MaxMessageLength"/></param>
+            <param name="type">The type of this message.</param>
+            <param name="error"></param>
+            <returns>Message ID on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SendMessage(System.Int32,System.String,SharpTox.Core.ToxMessageType)">
+            <summary>
+            Sends a message to a friend.
+            </summary>
+            <param name="friendNumber">The friend number to send the message to.</param>
+            <param name="message">The message to be sent. Maximum length: <see cref="F:SharpTox.Core.ToxConstants.MaxMessageLength"/></param>
+            <param name="type">The type of this message.</param>
+            <returns>Message ID on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.DeleteFriend(System.Int32,SharpTox.Core.ToxErrorFriendDelete@)">
+            <summary>
+            Deletes a friend from the friend list.
+            </summary>
+            <param name="friendNumber">The friend number to be deleted.</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.DeleteFriend(System.Int32)">
+            <summary>
+            Deletes a friend from the friend list.
+            </summary>
+            <param name="friendNumber">The friend number to be deleted.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetData">
+            <summary>
+            Retrieves a ToxData object that contains the profile data of this Tox instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetData(SharpTox.Encryption.ToxEncryptionKey)">
+            <summary>
+            Retrieves a ToxData object that contains the profile data of this Tox instance, encrypted with the provided key.
+            </summary>
+            <param name="key">The key to encrypt the Tox data with.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetPrivateKey">
+            <summary>
+            Retrieves the private key of this Tox instance.
+            </summary>
+            <returns>The private key of this Tox instance.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendName(System.Int32,SharpTox.Core.ToxErrorFriendQuery@)">
+            <summary>
+            Retrieves the name of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the name of.</param>
+            <param name="error"></param>
+            <returns>The friend's name on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendName(System.Int32)">
+            <summary>
+            Retrieves the name of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the name of.</param>
+            <returns>The friend's name on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendStatusMessage(System.Int32,SharpTox.Core.ToxErrorFriendQuery@)">
+            <summary>
+            Retrieves the status message of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the status message of.</param>
+            <param name="error"></param>
+            <returns>The friend's status message on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendStatusMessage(System.Int32)">
+            <summary>
+            Retrieves the status message of a friend.
+            </summary>
+            <param name="friendNumber">The friend number to retrieve the status message of.</param>
+            <returns>The friend's status message on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetUdpPort(SharpTox.Core.ToxErrorGetPort@)">
+            <summary>
+            Retrieves the UDP port this instance of Tox is bound to.
+            </summary>
+            <param name="error"></param>
+            <returns>The UDP port on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetUdpPort">
+            <summary>
+            Retrieves the UDP port this instance of Tox is bound to.
+            </summary>
+            <returns>The UDP port on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetTcpPort(SharpTox.Core.ToxErrorGetPort@)">
+            <summary>
+            Retrieves the TCP port this instance of Tox is bound to.
+            </summary>
+            <param name="error"></param>
+            <returns>The TCP port on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetTcpPort">
+            <summary>
+            Retrieves the TCP port this instance of Tox is bound to.
+            </summary>
+            <returns>The TCP port on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SetNospam(System.Int32)">
+            <summary>
+            Sets the nospam value for this Tox instance.
+            </summary>
+            <param name="nospam">The nospam value to set.</param>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetNospam">
+            <summary>
+            Retrieves the nospam value of this Tox instance.
+            </summary>
+            <returns>The nospam value.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileControl(System.Int32,System.Int32,SharpTox.Core.ToxFileControl,SharpTox.Core.ToxErrorFileControl@)">
+            <summary>
+            Sends a file control command to a friend for a given file transfer.
+            </summary>
+            <param name="friendNumber">The friend to send the file control to.</param>
+            <param name="fileNumber">The file transfer that this control is meant for.</param>
+            <param name="control">The control to send.</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileControl(System.Int32,System.Int32,SharpTox.Core.ToxFileControl)">
+            <summary>
+            Sends a file control command to a friend for a given file transfer.
+            </summary>
+            <param name="friendNumber">The friend to send the file control to.</param>
+            <param name="fileNumber">The file transfer that this control is meant for.</param>
+            <param name="control">The control to send.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSend(System.Int32,SharpTox.Core.ToxFileKind,System.Int64,System.String,SharpTox.Core.ToxErrorFileSend@)">
+            <summary>
+            Send a file transmission request.
+            </summary>
+            <param name="friendNumber">The friend number to send the request to.</param>
+            <param name="kind">The kind of file that will be transferred.</param>
+            <param name="fileSize">The size of the file that will be transferred.</param>
+            <param name="fileName">The filename of the file that will be transferred.</param>
+            <param name="error"></param>
+            <returns>Info about the file transfer on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSend(System.Int32,SharpTox.Core.ToxFileKind,System.Int64,System.String)">
+            <summary>
+            Send a file transmission request.
+            </summary>
+            <param name="friendNumber">The friend number to send the request to.</param>
+            <param name="kind">The kind of file that will be transferred.</param>
+            <param name="fileSize">The size of the file that will be transferred.</param>
+            <param name="fileName">The filename of the file that will be transferred.</param>
+            <returns>Info about the file transfer on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSend(System.Int32,SharpTox.Core.ToxFileKind,System.Int64,System.String,System.Byte[],SharpTox.Core.ToxErrorFileSend@)">
+            <summary>
+            Send a file transmission request.
+            </summary>
+            <param name="friendNumber">The friend number to send the request to.</param>
+            <param name="kind">The kind of file that will be transferred.</param>
+            <param name="fileSize">The size of the file that will be transferred.</param>
+            <param name="fileName">The filename of the file that will be transferred.</param>
+            <param name="fileId">The id to identify this transfer with. Should be ToxConstants.FileIdLength bytes long.</param>
+            <param name="error"></param>
+            <returns>Info about the file transfer on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSend(System.Int32,SharpTox.Core.ToxFileKind,System.Int64,System.String,System.Byte[])">
+            <summary>
+            Send a file transmission request.
+            </summary>
+            <param name="friendNumber">The friend number to send the request to.</param>
+            <param name="kind">The kind of file that will be transferred.</param>
+            <param name="fileSize">The size of the file that will be transferred.</param>
+            <param name="fileName">The filename of the file that will be transferred.</param>
+            <param name="fileId">The id to identify this transfer with. Should be ToxConstants.FileIdLength bytes long.</param>
+            <returns>Info about the file transfer on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSeek(System.Int32,System.Int32,System.Int64,SharpTox.Core.ToxErrorFileSeek@)">
+            <summary>
+            Sends a file seek control command to a friend for a given file transfer.
+            </summary>
+            <param name="friendNumber">The friend to send the seek command to.</param>
+            <param name="fileNumber">The file transfer that this command is meant for.</param>
+            <param name="position">The position that the friend should change his stream to.</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSeek(System.Int32,System.Int32,System.Int64)">
+            <summary>
+            Sends a file seek control command to a friend for a given file transfer.
+            </summary>
+            <param name="friendNumber">The friend to send the seek command to.</param>
+            <param name="fileNumber">The file transfer that this command is meant for.</param>
+            <param name="position">The position that the friend should change his stream to.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSendChunk(System.Int32,System.Int32,System.Int64,System.Byte[],SharpTox.Core.ToxErrorFileSendChunk@)">
+            <summary>
+            Sends a chunk of file data to a friend. This should be called in response to OnFileChunkRequested.
+            </summary>
+            <param name="friendNumber">The friend to send the chunk to.</param>
+            <param name="fileNumber">The file transfer that this chunk belongs to.</param>
+            <param name="position">The position from which to continue reading.</param>
+            <param name="data">The data to send. (should be equal to 'Length' received through OnFileChunkRequested).</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileSendChunk(System.Int32,System.Int32,System.Int64,System.Byte[])">
+            <summary>
+            Sends a chunk of file data to a friend. This should be called in response to OnFileChunkRequested.
+            </summary>
+            <param name="friendNumber">The friend to send the chunk to.</param>
+            <param name="fileNumber">The file transfer that this chunk belongs to.</param>
+            <param name="position">The position from which to continue reading.</param>
+            <param name="data">The data to send. (should be equal to 'Length' received through OnFileChunkRequested).</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileGetId(System.Int32,System.Int32,SharpTox.Core.ToxErrorFileGet@)">
+            <summary>
+            Retrieves the unique id of a file transfer. This can be used to uniquely identify file transfers across core restarts.
+            </summary>
+            <param name="friendNumber">The friend number that's associated with this transfer.</param>
+            <param name="fileNumber">The target file transfer.</param>
+            <param name="error"></param>
+            <returns>File transfer id on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FileGetId(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the unique id of a file transfer. This can be used to uniquely identify file transfers across core restarts.
+            </summary>
+            <param name="friendNumber">The friend number that's associated with this transfer.</param>
+            <param name="fileNumber">The target file transfer.</param>
+            <returns>File transfer id on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FriendSendLossyPacket(System.Int32,System.Byte[],SharpTox.Core.ToxErrorFriendCustomPacket@)">
+            <summary>
+            Sends a custom lossy packet to a friend. 
+            Lossy packets are like UDP packets, they may never reach the other side, arrive more than once or arrive in the wrong order.
+            </summary>
+            <param name="friendNumber">The friend to send the packet to.</param>
+            <param name="data">The data to send. The first byte must be in the range 200-254. The maximum length of the data is ToxConstants.MaxCustomPacketSize</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FriendSendLossyPacket(System.Int32,System.Byte[])">
+            <summary>
+            Sends a custom lossy packet to a friend. 
+            Lossy packets are like UDP packets, they may never reach the other side, arrive more than once or arrive in the wrong order.
+            </summary>
+            <param name="friendNumber">The friend to send the packet to.</param>
+            <param name="data">The data to send. The first byte must be in the range 200-254. The maximum length of the data is ToxConstants.MaxCustomPacketSize</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FriendSendLosslessPacket(System.Int32,System.Byte[],SharpTox.Core.ToxErrorFriendCustomPacket@)">
+            <summary>
+            Sends a custom lossless packet to a friend.
+            Lossless packets behave like TCP, they're reliable and arrive in order. The difference is that it's not a stream.
+            </summary>
+            <param name="friendNumber">The friend to send the packet to.</param>
+            <param name="data">The data to send. The first byte must be in the range 160-191. The maximum length of the data is ToxConstants.MaxCustomPacketSize</param>
+            <param name="error"></param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.FriendSendLosslessPacket(System.Int32,System.Byte[])">
+            <summary>
+            Sends a custom lossless packet to a friend.
+            Lossless packets behave like TCP, they're reliable and arrive in order. The difference is that it's not a stream.
+            </summary>
+            <param name="friendNumber">The friend to send the packet to.</param>
+            <param name="data">The data to send. The first byte must be in the range 160-191. The maximum length of the data is ToxConstants.MaxCustomPacketSize</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupNames(System.Int32)">
+            <summary>
+            Retrieves an array of group member names.
+            </summary>
+            <param name="groupNumber">The group to retrieve member names of.</param>
+            <returns>A string array of group member names on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.JoinGroup(System.Int32,System.Byte[])">
+            <summary>
+            Joins a group with the given public key of the group.
+            </summary>
+            <param name="friendNumber">The friend number we received an invite from.</param>
+            <param name="data">Data obtained from the OnGroupInvite event.</param>
+            <returns>The group number on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupMemberName(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the name of a group member.
+            </summary>
+            <param name="groupNumber">The group that the peer is in.</param>
+            <param name="peerNumber">The peer to retrieve the name of.</param>
+            <returns>The peer's name on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupMemberCount(System.Int32)">
+            <summary>
+            Retrieves the number of group members in a group chat.
+            </summary>
+            <param name="groupNumber">The group to get the member count of.</param>
+            <returns>The member count on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.DeleteGroupChat(System.Int32)">
+            <summary>
+            Deletes a group chat.
+            </summary>
+            <param name="groupNumber">The group to delete.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.InviteFriend(System.Int32,System.Int32)">
+            <summary>
+            Invites a friend to a group chat.
+            </summary>
+            <param name="friendNumber">The friend to invite to a group.</param>
+            <param name="groupNumber">The group to invite the friend to.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SendGroupMessage(System.Int32,System.String)">
+            <summary>
+            Sends a message to a group.
+            </summary>
+            <param name="groupNumber">The group to send the message to.</param>
+            <param name="message">The message to send.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SendGroupAction(System.Int32,System.String)">
+            <summary>
+            Sends an action to a group.
+            </summary>
+            <param name="groupNumber">The group to send the action to.</param>
+            <param name="action">The action to send.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.NewGroup">
+            <summary>
+            Creates a new group and retrieves the group number.
+            </summary>
+            <returns>The number of the created group on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.PeerNumberIsOurs(System.Int32,System.Int32)">
+            <summary>
+            Check if the given peernumber corresponds to ours.
+            </summary>
+            <param name="groupNumber">The group to check in.</param>
+            <param name="peerNumber">The peer number to check.</param>
+            <returns>True if the given peer number is ours.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.SetGroupTitle(System.Int32,System.String)">
+            <summary>
+            Changes the title of a group.
+            </summary>
+            <param name="groupNumber">The group to change the title of.</param>
+            <param name="title">The title to set.</param>
+            <returns>True on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupType(System.Int32)">
+            <summary>
+            Retrieves the type of a group.
+            </summary>
+            <param name="groupNumber">The group to retrieve the type of.</param>
+            <returns>The group type on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupTitle(System.Int32)">
+            <summary>
+            Retrieves the title of a group.
+            </summary>
+            <param name="groupNumber">The group to retrieve the title of.</param>
+            <returns>The group's title on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetGroupPeerPublicKey(System.Int32,System.Int32)">
+            <summary>
+            Retrieves the public key of a peer.
+            </summary>
+            <param name="groupNumber">The group that the peer is in.</param>
+            <param name="peerNumber">The peer to retrieve the public key of.</param>
+            <returns>The peer's public key on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendLastOnline(System.Int32,SharpTox.Core.ToxErrorFriendGetLastOnline@)">
+            <summary>
+            Retrieves the time a friend was last seen online.
+            </summary>
+            <param name="friendNumber">The friend to retrieve the 'last online' of.</param>
+            <param name="error"></param>
+            <returns>The time this friend was last seen online, on success.</returns>
+        </member>
+        <member name="M:SharpTox.Core.Tox.GetFriendLastOnline(System.Int32)">
+            <summary>
+            Retrieves the time a friend was last seen online.
+            </summary>
+            <param name="friendNumber">The friend to retrieve the 'last online' of.</param>
+            <returns>The time this friend was last seen online, on success.</returns>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendRequestReceived">
+            <summary>
+            Occurs when a friend request is received.
+            Friend requests should be accepted with AddFriendNoRequest.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendMessageReceived">
+            <summary>
+            Occurs when a message is received from a friend.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendNameChanged">
+            <summary>
+            Occurs when a friend has changed his/her name.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendStatusMessageChanged">
+            <summary>
+            Occurs when a friend has changed their status message.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendStatusChanged">
+            <summary>
+            Occurs when a friend has changed their user status.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendTypingChanged">
+            <summary>
+            Occurs when a friend's typing status has changed.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnConnectionStatusChanged">
+            <summary>
+            Occurs when the connection status of this Tox instance has changed.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendConnectionStatusChanged">
+            <summary>
+            Occurs when the connection status of a friend has changed.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnReadReceiptReceived">
+            <summary>
+            Occurs when a read receipt is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFileControlReceived">
+            <summary>
+            Occurs when a file control is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFileChunkReceived">
+            <summary>
+            Occurs when a chunk of data from a file transfer is received
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFileSendRequestReceived">
+            <summary>
+            Occurs when a new file transfer request has been received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFileChunkRequested">
+            <summary>
+            Occurs when the core requests the next chunk of the file.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendLossyPacketReceived">
+            <summary>
+            Occurs when a lossy packet from a friend is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnFriendLosslessPacketReceived">
+            <summary>
+            Occurs when a lossless packet from a friend is received.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnGroupAction">
+            <summary>
+            Occurs when an action is received from a group.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnGroupMessage">
+            <summary>
+            Occurs when a message is received from a group.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnGroupInvite">
+            <summary>
+            Occurs when a friend has sent an invite to a group.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnGroupNamelistChange">
+            <summary>
+            Occurs when the name list of a group has changed.
+            </summary>
+        </member>
+        <member name="E:SharpTox.Core.Tox.OnGroupTitleChanged">
+            <summary>
+            Occurs when the title of a groupchat is changed.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxData">
+            <summary>
+            Represents Tox data (unencrypted or encrypted).
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxData.IsEncrypted">
+            <summary>
+            Whether or not this data is encrypted.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxData.Bytes">
+            <summary>
+            The Tox data in a byte array.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxData.TryParse(SharpTox.Core.ToxDataInfo@)">
+            <summary>
+            Tries to parse this Tox profile.
+            </summary>
+            <param name="info"></param>
+            <returns>Tox profile information.</returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxData.Save(System.String)">
+            <summary>
+            Saves this Tox data to the disk with the specified filename.
+            </summary>
+            <param name="filename"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxData.FromDisk(System.String)">
+            <summary>
+            Loads Tox data from disk and creates a new instance of ToxData.
+            </summary>
+            <param name="filename"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxData.FromBytes(System.Byte[])">
+            <summary>
+            Creates a new instance of ToxData from the specified byte array.
+            </summary>
+            <param name="bytes"></param>
+            <returns></returns>
+        </member>
+        <member name="P:SharpTox.Core.ToxDataInfo.Id">
+            <summary>
+            The Tox ID of this data file.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxDataInfo.Name">
+            <summary>
+            The name used in this data file.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxDataInfo.StatusMessage">
+            <summary>
+            The status message in this data file.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxDataInfo.Status">
+            <summary>
+            The status used in this data file.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxDataInfo.SecretKey">
+            <summary>
+            The secret key of this data file.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxHandle">
+            <summary>
+            Represents a handle for an instance of tox.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxHandle.ReleaseHandle">
+            <summary>
+            Executes tox_kill to free the tox handle.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SharpTox.Core.SafeHandleZeroOrMinusOneIsInvalid">
+            <summary>
+            Provides a base class for Win32 safe handle implementations in which the value of either 0 or -1 indicates an invalid handle.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.SafeHandleZeroOrMinusOneIsInvalid.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the SafeHandleZeroOrMinusOneIsInvalid class, specifying whether the handle is to be reliably released.
+            </summary>
+            <param name="ownsHandle">true to reliably release the handle during the finalization phase; false to prevent reliable release (not recommended).</param>
+        </member>
+        <member name="P:SharpTox.Core.SafeHandleZeroOrMinusOneIsInvalid.IsInvalid">
+            <summary>
+            Gets a value that indicates whether the handle is invalid.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxId">
+            <summary>
+            Represents a Tox ID (38 bytes long)
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxId.PublicKey">
+            <summary>
+            Retrieves the public key of this Tox ID.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxId.Bytes">
+            <summary>
+            Retrieves the Tox ID, represented in an array of bytes.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxId.Nospam">
+            <summary>
+            Retrieves the nospam value of this Tox ID.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxId.Checksum">
+            <summary>
+            Retrieves the checksum of this Tox ID.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the ToxId class.
+            </summary>
+            <param name="id">A (ToxConstant.AddressSize * 2) character long hexadecimal string, containing a Tox ID.</param>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.#ctor(System.Byte[])">
+            <summary>
+            Initializes a new instance of the ToxId class.
+            </summary>
+            <param name="id">A byte array with a length of ToxConstant.AddressSize, containing a Tox ID.</param>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Creates a new tox id with the specified public key and nospam.
+            </summary>
+            <param name="publicKey">Public key to create this Tox ID with.</param>
+            <param name="nospam">Nospam value to create this Tox ID with.</param>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.#ctor(System.String,System.Int32)">
+            <summary>
+            Creates a new tox id with the specified public key and nospam.
+            </summary>
+            <param name="publicKey">Public key to create this Tox ID with.</param>
+            <param name="nospam">Nospam value to create this Tox ID with.</param>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.IsValid(System.String)">
+            <summary>
+            Checks whether or not the given Tox ID is valid.
+            </summary>
+            <param name="id">A (ToxConstant.AddressSize * 2) character long hexadecimal string, containing a Tox ID.</param>
+            <returns>True if the ID is valid, false if the ID is invalid.</returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxId.IsValid(System.Byte[])">
+            <summary>
+            Checks whether or not the given Tox ID is valid.
+            </summary>
+            <param name="id">A byte array with a length of ToxConstant.AddressSize, containing a Tox ID.</param>
+            <returns>True if the ID is valid, false if the ID is invalid.</returns>
+        </member>
+        <member name="T:SharpTox.Core.ToxKey">
+            <summary>
+            Represents a 32 byte long tox key (either public or secret).
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxKey.KeyType">
+            <summary>
+            The key type (either public or secret).
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxKey.#ctor(SharpTox.Core.ToxKeyType,System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpTox.Core.ToxKey"/> class
+            </summary>
+            <param name="type"></param>
+            <param name="key"></param>
+        </member>
+        <member name="M:SharpTox.Core.ToxKey.#ctor(SharpTox.Core.ToxKeyType,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpTox.Core.ToxKey"/> class
+            </summary>
+            <param name="type"></param>
+            <param name="key"></param>
+        </member>
+        <member name="M:SharpTox.Core.ToxKey.GetBytes">
+            <summary>
+            Retrieves a byte array of the tox key.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxKey.GetString">
+            <summary>
+            Retrieves a string of the tox key.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SharpTox.Core.ToxOptions">
+            <summary>
+            Represents settings to be used by an instance of tox.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.Default">
+            <summary>
+            Default Tox Options.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.Ipv6Enabled">
+            <summary>
+            Whether or not IPv6 should be enabled.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.UdpEnabled">
+            <summary>
+            Whether or not UDP should be enabled.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.LocalDiscoveryEnabled">
+            <summary>
+            LocalDiscoveryEnabled
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.ProxyType">
+            <summary>
+            Proxy type.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.ProxyHost">
+            <summary>
+            Proxy ip or domain.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.ProxyPort">
+            <summary>
+            Proxy port, in host byte order.
+            Underlying type is ushort, don't exceed ushort.MaxValue.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.StartPort">
+            <summary>
+            The start port of the inclusive port range to attempt to use.
+            Underlying type is ushort, don't exceed ushort.MaxValue.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.EndPort">
+            <summary>
+            The end port of the inclusive port range to attempt to use.
+            Underlying type is ushort, don't exceed ushort.MaxValue.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.TcpPort">
+            <summary>
+            The port to use for a TCP server. This can be disabled by assigning 0.
+            Underlying type is ushort, don't exceed ushort.MaxValue.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxOptions.HolePunchingEnabled">
+            <summary>
+            HolePunchingEnabled
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxOptions.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpTox.Core.ToxOptions"/> struct.
+            </summary>
+            <param name="ipv6Enabled">Whether or not IPv6 should be enabled.</param>
+            <param name="udpEnabled">Whether or not UDP should be enabled.</param>
+        </member>
+        <member name="M:SharpTox.Core.ToxOptions.#ctor(System.Boolean,SharpTox.Core.ToxProxyType,System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpTox.Core.ToxOptions"/> struct.
+            </summary>
+            <param name="ipv6Enabled">Whether or not IPv6 should be enabled.</param>
+            <param name="type">The type of proxy we want to connect to.</param>
+            <param name="proxyAddress">The IP address or DNS name of the proxy to be used.</param>
+            <param name="proxyPort">The port to use to connect to the proxy.</param>
+        </member>
+        <member name="T:SharpTox.Core.ToxVersion">
+            <summary>
+            Represents a version of Tox.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxVersion.Major">
+            <summary>
+            The major version number. Incremented when the API or ABI changes in an incompatible way.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxVersion.Minor">
+            <summary>
+            The minor version number. Incremented when functionality is added without breaking the API or ABI. 
+            Set to 0 when the major version number is incremented.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxVersion.Patch">
+            <summary>
+            The patch or revision number. Incremented when bugfixes are applied without changing any functionality or API or ABI.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxVersion.Current">
+            <summary>
+            The current version of Tox. Assuming there's a libtox.dll/libtoxcore.so in our PATH.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxVersion.IsCompatible">
+            <summary>
+            Checks whether or not this version is compatible with the version of Tox that we're using.
+            </summary>
+            <returns>True if this version is compatible, false if it's not.</returns>
+        </member>
+        <member name="M:SharpTox.Core.ToxVersion.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the ToxVersion class.
+            </summary>
+            <param name="major">The major version number.</param>
+            <param name="minor">The minor version number.</param>
+            <param name="patch">The patch or revision number.</param>
+        </member>
+        <member name="T:SharpTox.Core.ToxConstants">
+            <summary>
+            Represents a collection of tox constants.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxMessageLength">
+            <summary>
+            The maximum message length in bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxStatusMessageLength">
+            <summary>
+            The maximum status message length in bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxFriendRequestLenght">
+            <summary>
+            The maximum friend request message length in bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxNameLength">
+            <summary>
+            The maximum name length in bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxCustomPacketSize">
+            <summary>
+            The maximum length of a custom packet.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.HashLength">
+            <summary>
+            The exact length of the hash of an avatar in bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.PublicKeySize">
+            <summary>
+            The size of a public key.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.SecretKeySize">
+            <summary>
+            The size of a secret key.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.AddressSize">
+            <summary>
+            The size of an address.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.FileIdLength">
+            <summary>
+            Length of a file identifier.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConstants.MaxFileNameLength">
+            <summary>
+            The maximum length of a filename.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorNew">
+            <summary>
+            Errors that can occur when creating a new instance of Tox.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.Malloc">
+            <summary>
+            Failed to allocate enough memory.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.PortAlloc">
+            <summary>
+            Failed to bind to a port. This could mean that all ports have already been bound.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.ProxyBadType">
+            <summary>
+            Specified proxy type is invalid.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.ProxyBadHost">
+            <summary>
+            Specified host is invalid.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.ProxyBadPort">
+            <summary>
+            Specified port is invalid.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.ProxyNotFound">
+            <summary>
+            Specified host could not be resolved.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.LoadEncrypted">
+            <summary>
+            The specified byte array to be loaded contained encrypted data.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorNew.LoadBadFormat">
+            <summary>
+            The specified byte array contains (partially) invalid data.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorBootstrap">
+            <summary>
+            Errors that can occur when calling Bootstrap.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorBootstrap.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorBootstrap.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorBootstrap.BadHost">
+            <summary>
+            The specified host could not be resolved to and IP address or the specified IP address is invalid.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorBootstrap.BadPort">
+            <summary>
+            The specified port is invalid.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxConnectionStatus">
+            <summary>
+            Tox connection status.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConnectionStatus.None">
+            <summary>
+            No connection established.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConnectionStatus.Tcp">
+            <summary>
+            A TCP connection has been established.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxConnectionStatus.Udp">
+            <summary>
+            A UDP connection has been established.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendGetPublicKey">
+            <summary>
+            Errors that can occur when trying to retrieve a friend's public key.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendGetPublicKey.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendGetPublicKey.NotFound">
+            <summary>
+            No friend with the given number exists on the friend list.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendByPublicKey">
+            <summary>
+            Errors that can occur when trying to find a friend by their public key.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendByPublicKey.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendByPublicKey.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendByPublicKey.NotFound">
+            <summary>
+            No friend with the given public key exists on the friend list.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendQuery">
+            <summary>
+            Errors that can occur when querying for information about a friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendQuery.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendQuery.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendQuery.NotFound">
+            <summary>
+            The friend number did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendDelete">
+            <summary>
+            Errors that can occur when trying to delete a friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendDelete.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendDelete.NotFound">
+            <summary>
+            There was no friend with the given friend number. No friends were deleted.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxUserStatus">
+            <summary>
+            UserStatus of a tox friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxUserStatus.None">
+            <summary>
+            No status.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxUserStatus.Away">
+            <summary>
+            Away.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxUserStatus.Busy">
+            <summary>
+            Busy.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorSendMessage">
+            <summary>
+            Errors that can occur when trying to send a message to a friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.FriendNotFound">
+            <summary>
+            The specified friend number could not be found in the friend list.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.FriendNotConnected">
+            <summary>
+            We're not connected to the specified friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.SendQ">
+            <summary>
+            An allocation error occurred while increasing the send queue size.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.TooLong">
+            <summary>
+            The specified message exceeded <see cref="F:SharpTox.Core.ToxConstants.MaxMessageLength"/>.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSendMessage.Empty">
+            <summary>
+            The specified message is empty.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendAdd">
+            <summary>
+            Errrors that can occur when trying to add a friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.TooLong">
+            <summary>
+            The length of the friend request message was too long.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.NoMessage">
+            <summary>
+            The friend request message was empty.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.OwnKey">
+            <summary>
+            The specified address is equal to our own.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.AlreadySent">
+            <summary>
+            A friend request has already been sent to this address or the address belongs to a friend that is already in our friend list.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.BadChecksum">
+            <summary>
+            The address checksum failed.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.SetNewNospam">
+            <summary>
+            The friend was already in the list, but the nospam value was different.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendAdd.Malloc">
+            <summary>
+            A memory allocation failed when trying to increase the friend list size.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorSetTyping">
+            <summary>
+            Errors that can occur when trying to set typing status.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSetTyping.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSetTyping.NotFound">
+            <summary>
+            The friend number did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorSetInfo">
+            <summary>
+            Errors that can occur when changing our name or status message.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSetInfo.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSetInfo.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorSetInfo.TooLong">
+            <summary>
+            The friend number did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorOptionsNew.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorOptionsNew.Malloc">
+            <summary>
+            The function failed to allocate enough memory for the options struct.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorGetPort">
+            <summary>
+            Errors that can occur when trying to retrieve the port an instance of Tox is bound to.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorGetPort.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorGetPort.NotBound">
+            <summary>
+            The instance was not bound to any port.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxKeyType">
+            <summary>
+            Tox key type.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxKeyType.Public">
+            <summary>
+            A public key.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxKeyType.Secret">
+            <summary>
+            A secret key.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxProxyType">
+            <summary>
+            The different kinds of proxies.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxProxyType.None">
+            <summary>
+            Don't use a proxy.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxProxyType.Http">
+            <summary>
+            HTTP proxy.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxProxyType.Socks5">
+            <summary>
+            Socks5 proxy.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxFileControl">
+            <summary>
+            The different kinds of file controls that can be sent.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxFileControl.Resume">
+            <summary>
+            A control used to resume a paused file transfer. Also used to accept a file transfer request.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxFileControl.Pause">
+            <summary>
+            A control used to pause a file transfer.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxFileControl.Cancel">
+            <summary>
+            A control used to kill a file transfer. Also used to decline a file transfer request.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxFileKind">
+            <summary>
+            The different kinds of files that can be transferred.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxFileKind.Data">
+            <summary>
+            Arbitrary file data.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxFileKind.Avatar">
+            <summary>
+            An avatar.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxMessageType">
+            <summary>
+            The different kinds of messages that can be sent.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxMessageType.Message">
+            <summary>
+            A regular message.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxMessageType.Action">
+            <summary>
+            An IRC-like action.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFileControl">
+            <summary>
+            Errors that can occur when trying to send a file control.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.FriendNotFound">
+            <summary>
+            The friend number passed did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.FriendNotConnected">
+            <summary>
+            This client is currently not connected to the friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.NotFound">
+            <summary>
+            No file transfer with the given file number was found for the given friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.NotPaused">
+            <summary>
+            A RESUME control was sent, but the file transfer is running normally.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.Denied">
+            <summary>
+            A RESUME control was sent, but the file transfer was paused by the other party. Only the party that paused the transfer can resume it.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.AlreadyPaused">
+            <summary>
+            A PAUSE control was sent, but the file transfer was already paused.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileControl.SendQ">
+            <summary>
+            Packet queue is full.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFileSend">
+            <summary>
+            Errors that can occur when trying to send a file transfer request.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.FriendNotFound">
+            <summary>
+            The friend number passed did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.FriendNotConnected">
+            <summary>
+            This client is currently not connected to the friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.NameTooLong">
+            <summary>
+            Filename length exceeded TOX_MAX_FILENAME_LENGTH bytes.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSend.TooMany">
+            <summary>
+            Too many ongoing transfers. The maximum number of concurrent file transfers is 256 per friend per direction (sending and receiving).
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFileSendChunk">
+            <summary>
+            Errors that can occur when trying to send a chunk of a file.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.FriendNotFound">
+            <summary>
+            The friend number passed did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.FriendNotConnected">
+            <summary>
+            This client is currently not connected to the friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.NotFound">
+            <summary>
+            No file transfer with the given file number was found for the given friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.NotTransferring">
+            <summary>
+            File transfer was found but isn't in a transferring state: (paused, done, broken, etc...) (happens only when not called from the request chunk callback).
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.InvalidLength">
+            <summary>
+            Attempted to send more or less data than requested.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.SendQ">
+            <summary>
+            Packet queue is full.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSendChunk.WrongPosition">
+            <summary>
+            Position parameter was wrong.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFileGet">
+            <summary>
+            Errors that can occur when trying retrieve a file transfer by it's unique ID.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileGet.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileGet.FriendNotFound">
+            <summary>
+            The friend number passed did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileGet.NotFound">
+            <summary>
+            No file transfer with the given file number was found for the given friend.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFileSeek">
+            <summary>
+            Errors that can occur when trying to send a file seek command.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.FriendNotFound">
+            <summary>
+            The friend number passed did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.FriendNotConnected">
+            <summary>
+            This client is currently not connected to the friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.NotFound">
+            <summary>
+            No file transfer with the given file number was found for the given friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.SeekDenied">
+            <summary>
+            File was not in a state where it could be seeked.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.InvalidPosition">
+            <summary>
+            Seek position was invalid.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFileSeek.SendQ">
+            <summary>
+            Packet queue is full.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendCustomPacket">
+            <summary>
+            Errors that can occur when trying to send a custom packet.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.Null">
+            <summary>
+            One of the arguments to the function was NULL when it was not expected.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.FriendNotNull">
+            <summary>
+            The friend number did not designate a valid friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.FriendNotConnected">
+            <summary>
+            This client is currently not connected to the friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.Invalid">
+            <summary>
+            The first byte of data was not in the specified range for the packet type. This range is 200-254 for lossy, and 160-191 for lossless packets.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.Empty">
+            <summary>
+            Attempted to send an empty packet.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.TooLong">
+            <summary>
+            Packet data length exceeded TOX_MAX_CUSTOM_PACKET_SIZE.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendCustomPacket.SendQ">
+            <summary>
+            Packet queue is full.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxErrorFriendGetLastOnline">
+            <summary>
+            Errors that can occur when trying to retrieve the 'last online' of a friend.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendGetLastOnline.Ok">
+            <summary>
+            The function returned successfully.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxErrorFriendGetLastOnline.NotFound">
+            <summary>
+             No friend with the given number exists on the friend list.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxChatChange">
+            <summary>
+            Changes that can occur in a group chat.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxChatChange.PeerAdd">
+            <summary>
+            A new peer joined the group.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxChatChange.PeerDel">
+            <summary>
+            A peer left the group.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxChatChange.PeerName">
+            <summary>
+            A peer changed its name.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxGroupType">
+            <summary>
+            All of the different group types.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxGroupType.Text">
+            <summary>
+            Text only, no audio in this groupchat.
+            </summary>
+        </member>
+        <member name="F:SharpTox.Core.ToxGroupType.Av">
+            <summary>
+            Both text and audio in this groupchat.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxFunctions">
+            <summary>
+            Represents a collection of native functions found in the tox core library.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Core.ToxNode">
+            <summary>
+            Represents a tox node.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxNode.Address">
+            <summary>
+            The address of this node.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxNode.Port">
+            <summary>
+            The port on which this node listens.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxNode.PublicKey">
+            <summary>
+            The public key of this node.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxNode.#ctor(System.String,System.Int32,SharpTox.Core.ToxKey)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpTox.Core.ToxNode"/> class.
+            </summary>
+            <param name="address"></param>
+            <param name="port"></param>
+            <param name="publicKey"></param>
+        </member>
+        <member name="T:SharpTox.Core.ToxTools">
+            <summary>
+            A set of helper functions for Tox.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Core.ToxTools.Hash(System.Byte[])">
+            <summary>
+            Generates a cryptographic hash of the given data.
+            </summary>
+            <param name="data">The data to calculate the hash of.</param>
+            <returns>The cryptographic hash of the given data.</returns>
+        </member>
+        <member name="T:SharpTox.Core.ToxFileInfo">
+            <summary>
+            Represent information about a file transfer.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxFileInfo.Number">
+            <summary>
+            The number of this file transfer.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Core.ToxFileInfo.Id">
+            <summary>
+            The unique ID if this file transfer. This can be used to resume file transfer across restarts.
+            </summary>
+        </member>
+        <member name="T:SharpTox.Dns.ToxDnsHandle">
+            <summary>
+            Represents a handle for an instance of tox_dns3.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Dns.ToxDnsHandle.ReleaseHandle">
+            <summary>
+            Executes tox_dns3_kill to free the toxdns handle.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SharpTox.Dns.ToxDns">
+            <summary>
+            Represents an instance of tox dns3.
+            </summary>
+        </member>
+        <member name="P:SharpTox.Dns.ToxDns.Handle">
+            <summary>
+            The handle of this tox dns3 instance.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Dns.ToxDns.#ctor(SharpTox.Core.ToxKey)">
+            <summary>
+            Initializes a new instance of tox dns3.
+            </summary>
+            <param name="publicKey">The public key that this instance of toxdns should be initialized with.</param>
+        </member>
+        <member name="M:SharpTox.Dns.ToxDns.Dispose">
+            <summary>
+            Releases all resources used by this instance of tox dns3.
+            </summary>
+        </member>
+        <member name="M:SharpTox.Dns.ToxDns.GenerateDns3String(System.String,System.Int32@)">
+            <summary>
+            Generates a dns3 string used to query the dns server.
+            </summary>
+            <param name="name">Name of the registered user.</param>
+            <param name="requestId">The request id, to be used when calling DecryptDns3TXT.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpTox.Dns.ToxDns.DecryptDns3TXT(System.String,System.Int32)">
+            <summary>
+            Decodes and decrypts the dns3 string returned by <see cref="M:SharpTox.Dns.ToxDns.GenerateDns3String(System.String,System.Int32@)"/>.
+            </summary>
+            <param name="dns3String">String to decrypt.</param>
+            <param name="requestId">The request id retrieved with GenerateDns3String.</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
