@@ -388,7 +388,6 @@ namespace SharpTox.Core
             {
                 while (_running)
                 {
-                    DateTime previousTime = DateTime.UtcNow;
                     if (_cancelTokenSource.IsCancellationRequested)
                         break;
                     int delay = DoIterate();

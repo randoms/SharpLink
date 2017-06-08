@@ -30,7 +30,6 @@ namespace Skynet.Base
         object mPendingReqLock = new object();
         private Dictionary<string, Action<ToxResponse>> mPendingReqList = new Dictionary<string, Action<ToxResponse>>();
         public static int MAX_MSG_LENGTH = 1024;
-        //private List<string> connectedList = new List<string>();
         public int httpPort;
         private Dictionary<string, Action<ToxRequest>>  reqCallbacks = new Dictionary<string, Action<ToxRequest>>();
         private object sendLock = new object();
