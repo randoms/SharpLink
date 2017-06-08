@@ -67,6 +67,21 @@ namespace SharpLink
                 mSkynet = new Skynet.Base.Skynet();
             }
 
+            // 线程监控程序
+            Task.Run(() => {
+                while (runningFlag)
+                {
+                    int workerThreads, completionPortThreads;
+                    ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+                    int workerThreadsMax, completionPortThreadsMax;
+                    ThreadPool.GetMaxThreads(out workerThreadsMax, out completionPortThreadsMax);
+                    int workerThreadsMin, completionPortThreadsMin;
+                    ThreadPool.GetMinThreads(out workerThreadsMin, out completionPortThreadsMin);
+                    ThreadPool.SetMinThreads(workerThreadsMax - workerThreads + 40, workerThreadsMax - workerThreads + 40);
+                    Thread.Sleep(2000);
+                }
+            });
+
             if (args.Length == 4)
             {
                 string localPort = args[0];
@@ -88,21 +103,6 @@ namespace SharpLink
                     {
                         IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
                         Thread.Sleep(2*1000);
-                    }
-                });
-
-                // 线程监控程序
-                Task.Run(() => {
-                    while (runningFlag)
-                    {
-                        int workerThreads, completionPortThreads;
-                        ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
-                        int workerThreadsMax, completionPortThreadsMax;
-                        ThreadPool.GetMaxThreads(out workerThreadsMax, out completionPortThreadsMax);
-                        int workerThreadsMin, completionPortThreadsMin;
-                        ThreadPool.GetMinThreads(out workerThreadsMin, out completionPortThreadsMin);
-                        ThreadPool.SetMinThreads(workerThreadsMax - workerThreads + 40, workerThreadsMax - workerThreads + 40);
-                        Thread.Sleep(2000);
                     }
                 });
 
@@ -146,6 +146,7 @@ namespace SharpLink
                                             if (mlink != null)
                                             {
                                                 mlink.CloseRemote();
+                                                mlink.Close();
                                             }
 
                                             if (!closeFlag && clientSocket.Connected)
@@ -168,6 +169,8 @@ namespace SharpLink
                                                 closeFlag = true;
                                                 clientSocket.Shutdown(SocketShutdown.Both);
                                                 clientSocket.Close();
+                                                mlink.CloseRemote();
+                                                mlink.Close();
                                                 Utils.Log("Event: Tox send message failed, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                                 Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                                 break;
@@ -179,8 +182,11 @@ namespace SharpLink
                                     {
                                         Utils.Log("Event: ERROR " + e.Message);
                                         Utils.Log(e.StackTrace);
-                                        if (mlink != null)
+                                        if (mlink != null) {
                                             mlink.CloseRemote();
+                                            mlink.Close();
+                                        }
+                                            
                                         if (!closeFlag && clientSocket.Connected)
                                         {
                                             closeFlag = true;
@@ -211,6 +217,7 @@ namespace SharpLink
                                         Utils.Log("ERROR " + e.Message);
                                         Utils.Log(e.StackTrace);
                                         mlink.CloseRemote();
+                                        mlink.Close();
                                         if (!closeFlag && clientSocket.Connected)
                                         {
                                             closeFlag = true;
@@ -253,6 +260,7 @@ namespace SharpLink
                                 // socket has closed
                                 Utils.Log("Event: Close Remote, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                 mlink.CloseRemote();
+                                mlink.Close();
                             }
                         },TaskCreationOptions.LongRunning).ForgetOrThrow();
                     }
@@ -298,6 +306,7 @@ namespace SharpLink
                                     Utils.Log("Event: ERROR " + e.Message);
                                     Utils.Log(e.StackTrace);
                                     mlink.CloseRemote();
+                                    mlink.Close();
                                     if (!closeFlag && mClientSocket.Connected)
                                     {
                                         closeFlag = true;
@@ -333,6 +342,7 @@ namespace SharpLink
                                         else
                                         {
                                             Utils.Log("Event: Socket already closed" + ipstr + " " + port + " mLinkID " + mlink.clientId);
+
                                             break;
                                         }
 
@@ -346,6 +356,7 @@ namespace SharpLink
                                                 mClientSocket.Close();
                                             }
                                             mlink.CloseRemote();
+                                            mlink.Close();
                                             break;
                                         }
                                         else
@@ -361,6 +372,7 @@ namespace SharpLink
                                                 closeFlag = true;
                                                 mClientSocket.Shutdown(SocketShutdown.Both);
                                                 mClientSocket.Close();
+                                                mlink.Close();
                                                 Utils.Log("Event: Tox send message failed, Clientid: " + mlink.clientId);
                                                 break;
                                             }
@@ -376,6 +388,7 @@ namespace SharpLink
                                         Utils.Log("Event: ERROR " + e.Message);
                                         Utils.Log(e.StackTrace);
                                         mlink.CloseRemote();
+                                        mlink.Close();
                                         if (!closeFlag && mClientSocket.Connected)
                                         {
                                             closeFlag = true;

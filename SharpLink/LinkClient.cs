@@ -23,6 +23,10 @@ namespace SharpLink
         private Action<byte[]> msgHandler;
         private Action<Exception> errorHander;
         private Action closeHandler;
+        private Queue<ToxRequest> messageQueue;
+        private object messageQueueLock = new object();
+        private bool runningFlag = true;
+        private DateTime lastActiveTime;
 
         public LinkClient(Skynet.Base.Skynet mSkynet, string targetToxId, IPAddress ip, int port)
         {
@@ -32,6 +36,28 @@ namespace SharpLink
             serverToxId = new ToxId(targetToxId);
             clientId = Guid.NewGuid().ToString();
             this.mSkynet = mSkynet;
+            messageQueue = new Queue<ToxRequest>();
+            lastActiveTime = DateTime.UtcNow;
+
+            // send message to local loop
+            Task.Run(() =>
+            {
+                ToxRequest mReq;
+                // if idle for 600s, shutdown
+                while (runningFlag && (long)(DateTime.UtcNow -  lastActiveTime).TotalMilliseconds < 600 * 1000) {
+                    mReq = getRequestToSend();
+                    if (mReq != null && msgHandler != null)
+                    {
+                        lastActiveTime = DateTime.UtcNow;
+                        msgHandler(mReq.content);
+                        Utils.Log("Event: Received Message Complete, ClientId: " + clientId + ", MessageId: " + mReq.uuid);
+                        var response = mReq.createResponse(Encoding.UTF8.GetBytes("OK"));
+                        mSkynet.sendResponse(response, new ToxId(response.toToxId));
+                    }
+                    else
+                        Thread.Sleep(1);
+                }
+            });
         }
 
         private async Task<bool> HandShake()
@@ -132,11 +158,12 @@ namespace SharpLink
 
         public bool Send(byte[] msg, int size)
         {
+            lastActiveTime = DateTime.UtcNow;
             string msgGuidStr = Guid.NewGuid().ToString();
             Utils.Log("Event: Send Message, ClientId: " + clientId + ", ReqId: " + msgGuidStr);
 
             bool status;
-            mSkynet.sendRequestNoReplay(new ToxId(targetToxId), new ToxRequest
+            var res = mSkynet.sendRequest(new ToxId(targetToxId), new ToxRequest
             {
                 url = "/msg",
                 method = "get",
@@ -145,12 +172,15 @@ namespace SharpLink
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = targetToxId,
                 toNodeId = serverId,
-                time = Skynet.Utils.Utils.UnixTimeNow(),
+                time = Utils.UnixTimeNow(),
                 content = msg.Take(size).ToArray(),
-            }, out status);
+            }, out status, 1000).GetAwaiter().GetResult();
             if (!status && errorHander != null)
                 errorHander(new Exception("send message failed"));
-            return status;
+            if (res == null)
+                return false;
+            else
+                return true;
         }
 
         public bool Send(byte[] msg, int size, int retryCount)
@@ -187,8 +217,7 @@ namespace SharpLink
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/msg")
             {
                 Utils.Log("Event: Received Message, ClientId: " + clientId + ", MessageId: " + req.uuid);
-                msgHandler(req.content);
-                Utils.Log("Event: Received Message Complete, ClientId: " + clientId + ", MessageId: " + req.uuid);
+                sendRequestLocal(req);
             }
             if (req.toNodeId == clientId && req.fromNodeId == serverId && req.url == "/close")
             {
@@ -198,13 +227,25 @@ namespace SharpLink
             }
         }
 
-        private void sendMessageLocal(byte[] msg) {
+        private void sendRequestLocal(ToxRequest req) {
+            // 把变量保存至本地
+            lock (messageQueueLock) {
+                messageQueue.Enqueue(req);
+            }
+        }
 
+        private ToxRequest getRequestToSend() {
+            lock (messageQueue) {
+                if (messageQueue.Count > 0)
+                    return messageQueue.Dequeue();
+            }
+            return null;
         }
 
         public void Close()
         {
             mSkynet.removeNewReqListener(clientId);
+            runningFlag = false;
         }
 
         public void CloseRemote()
@@ -219,7 +260,7 @@ namespace SharpLink
                 fromToxId = mSkynet.tox.Id.ToString(),
                 toToxId = serverToxId.ToString(),
                 toNodeId = serverId,
-                time = Skynet.Utils.Utils.UnixTimeNow(),
+                time = Utils.UnixTimeNow(),
             }, out status);
         }
 

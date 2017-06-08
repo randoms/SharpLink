@@ -45,7 +45,7 @@ namespace Skynet.Base.Contollers
             // if not, send tox req to target tox client
             bool reqStatus = false;
             ToxResponse nodeResponse = await curHost.sendRequest(new ToxId(id), RequestProxy.toNodeRequest(Request), out reqStatus);
-            if (reqStatus)
+            if (nodeResponse != null)
                 return JsonConvert.DeserializeObject<NodeResponse>(Encoding.UTF8.GetString(nodeResponse.content));
             else
                 return new NodeResponse
