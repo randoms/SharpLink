@@ -103,7 +103,15 @@ namespace SharpLink
                     while (runningFlag)
                     {
                         IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
-                        Thread.Sleep(2 * 1000);
+                        if (!IsConnected)
+                        {
+                            var toxid = new ToxId(targetToxId);
+                            ToxKey toxkey = toxid.PublicKey;
+                            int friendNum = mSkynet.tox.GetFriendByPublicKey(toxkey);
+                            if (friendNum == -1)
+                                mSkynet.tox.DeleteFriend(friendNum);
+                        }
+                        Thread.Sleep(60 * 1000);
                     }
                 });
 
