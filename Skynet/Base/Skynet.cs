@@ -31,7 +31,7 @@ namespace Skynet.Base
         private Dictionary<string, Action<ToxResponse>> mPendingReqList = new Dictionary<string, Action<ToxResponse>>();
         public static int MAX_MSG_LENGTH = 1024;
         public int httpPort;
-        private Dictionary<string, Action<ToxRequest>>  reqCallbacks = new Dictionary<string, Action<ToxRequest>>();
+        private Dictionary<string, Action<ToxRequest>> reqCallbacks = new Dictionary<string, Action<ToxRequest>>();
         private object sendLock = new object();
         private object reqListnerLock = new object();
         private Queue<Package> reqQueue = new Queue<Package>();
@@ -179,7 +179,7 @@ namespace Skynet.Base
         {
             lock (reqListnerLock)
             {
-                reqCallbacks.Add(nodeid, cb);   
+                reqCallbacks.Add(nodeid, cb);
             }
         }
 
@@ -216,14 +216,16 @@ namespace Skynet.Base
                 }
                 byte[] fullSizeContent = new byte[receivedPackage.totalSize];
                 receivedPackage.content.CopyTo(fullSizeContent, 0);
-                lock (mPackageCacheLock) {
+                lock (mPackageCacheLock)
+                {
                     mPackageCache.Add(receivedPackage.uuid, fullSizeContent);
                 }
-                
+
             }
             else if (receivedPackage.currentCount != receivedPackage.totalCount - 1)
             {
-                lock (mPackageCacheLock) {
+                lock (mPackageCacheLock)
+                {
                     receivedPackage.content.CopyTo(mPackageCache[receivedPackage.uuid], receivedPackage.startIndex);
                 }
             }
@@ -247,6 +249,7 @@ namespace Skynet.Base
 
         void tox_OnFriendConnectionStatusChanged(object sender, ToxEventArgs.FriendConnectionStatusEventArgs e)
         {
+            Console.WriteLine("Friend connection status changed");
             if (e.Status == ToxConnectionStatus.None)
             {
                 // find target friend in all nodes
@@ -301,7 +304,8 @@ namespace Skynet.Base
         void newReqReceived(Package receivedPackage)
         {
             byte[] mcontentCache = new byte[receivedPackage.totalSize];
-            lock (mPackageCacheLock) {
+            lock (mPackageCacheLock)
+            {
                 if (mPackageCache.ContainsKey(receivedPackage.uuid))
                 {
                     mcontentCache = mPackageCache[receivedPackage.uuid];
@@ -320,11 +324,12 @@ namespace Skynet.Base
                 }
             }
             ToxRequest newReq = ToxRequest.fromBytes(mcontentCache);
-            if (newReq.method == "") {
+            if (newReq.method == "")
+            {
                 Console.WriteLine("this happends, this is an ugly hack");
                 return;
             }
-                
+
             if (newReq == null)
             {
                 Utils.Utils.Log("Event: Invalid Request Data: receivedPackage " + receivedPackage.uuid);
@@ -334,8 +339,10 @@ namespace Skynet.Base
             Utils.Utils.Log("Event: Begin Process MessageID: " + newReq.uuid);
             if (newReq.url == "/msg")
                 Utils.Utils.Log("Event: Message toNodeID: " + newReq.toNodeId + ", totoxid:" + newReq.toToxId);
-            lock (reqListnerLock) {
-                if (reqCallbacks.Keys.Contains(newReq.toNodeId)) {
+            lock (reqListnerLock)
+            {
+                if (reqCallbacks.Keys.Contains(newReq.toNodeId))
+                {
                     reqCallbacks[newReq.toNodeId](newReq);
                 }
             }
@@ -398,7 +405,7 @@ namespace Skynet.Base
                         }
 
                         Utils.Utils.Log("Event: " + mesError, true);
-                        Console.WriteLine(Utils.Utils.UnixTimeNow() +  " Event: " + mesError);
+                        Console.WriteLine(Utils.Utils.UnixTimeNow() + " Event: " + mesError);
                         if (mesError == ToxErrorFriendCustomPacket.SendQ)
                         {
                             Thread.Sleep(100);
@@ -536,7 +543,8 @@ namespace Skynet.Base
                     status = false;
                     return Task.Factory.StartNew<ToxResponse>(() =>
                     {
-                        lock (mPendingReqLock) {
+                        lock (mPendingReqLock)
+                        {
                             mPendingReqList.Remove(req.uuid);
                         }
                         return null;
@@ -553,10 +561,12 @@ namespace Skynet.Base
                 {
                     // timeout count thread
                     int timeoutCount = 0;
-                    while (timeoutCount < timeout * 1000) {
+                    while (timeoutCount < timeout * 1000)
+                    {
                         Thread.Sleep(100);
                         timeoutCount += 100;
-                        lock (mPendingReqLock) {
+                        lock (mPendingReqLock)
+                        {
                             if (!mPendingReqList.Keys.Contains(req.uuid))
                             {
                                 // already received response
@@ -564,8 +574,9 @@ namespace Skynet.Base
                             }
                         }
                     }
-                    Console.WriteLine( Utils.Utils.UnixTimeNow() +  "Timeout Happends");
-                    lock (mPendingReqLock) {
+                    Console.WriteLine(Utils.Utils.UnixTimeNow() + "Timeout Happends");
+                    lock (mPendingReqLock)
+                    {
                         if (mPendingReqList.Keys.Contains(req.uuid))
                         {
                             mRes = null;

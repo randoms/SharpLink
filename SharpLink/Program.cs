@@ -68,7 +68,8 @@ namespace SharpLink
             }
 
             // 线程监控程序
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 while (runningFlag)
                 {
                     int workerThreads, completionPortThreads;
@@ -102,7 +103,7 @@ namespace SharpLink
                     while (runningFlag)
                     {
                         IsConnected = mSkynet.HandShake(new ToxId(targetToxId)).GetAwaiter().GetResult();
-                        Thread.Sleep(2*1000);
+                        Thread.Sleep(2 * 1000);
                     }
                 });
 
@@ -152,7 +153,15 @@ namespace SharpLink
                                             if (!closeFlag && clientSocket.Connected)
                                             {
                                                 closeFlag = true;
-                                                clientSocket.Shutdown(SocketShutdown.Both);
+                                                try
+                                                {
+                                                    clientSocket.Shutdown(SocketShutdown.Both);
+                                                }
+                                                catch (SocketException ex)
+                                                {
+                                                    Utils.Log("Event ERROR: " + ex.Message);
+                                                }
+
                                                 clientSocket.Close();
                                                 if (mlink != null)
                                                     Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
@@ -167,7 +176,14 @@ namespace SharpLink
                                             if (!res && !closeFlag && clientSocket.Connected)
                                             {
                                                 closeFlag = true;
-                                                clientSocket.Shutdown(SocketShutdown.Both);
+                                                try
+                                                {
+                                                    clientSocket.Shutdown(SocketShutdown.Both);
+                                                }
+                                                catch (SocketException ex)
+                                                {
+                                                    Utils.Log("Event ERROR: " + ex.Message);
+                                                }
                                                 clientSocket.Close();
                                                 mlink.CloseRemote();
                                                 mlink.Close();
@@ -182,15 +198,23 @@ namespace SharpLink
                                     {
                                         Utils.Log("Event: ERROR " + e.Message);
                                         Utils.Log(e.StackTrace);
-                                        if (mlink != null) {
+                                        if (mlink != null)
+                                        {
                                             mlink.CloseRemote();
                                             mlink.Close();
                                         }
-                                            
+
                                         if (!closeFlag && clientSocket.Connected)
                                         {
                                             closeFlag = true;
-                                            clientSocket.Shutdown(SocketShutdown.Both);
+                                            try
+                                            {
+                                                clientSocket.Shutdown(SocketShutdown.Both);
+                                            }
+                                            catch (SocketException ex)
+                                            {
+                                                Utils.Log("Event ERROR: " + ex.Message);
+                                            }
                                             clientSocket.Close();
                                             if (mlink != null)
                                                 Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
@@ -221,7 +245,14 @@ namespace SharpLink
                                         if (!closeFlag && clientSocket.Connected)
                                         {
                                             closeFlag = true;
-                                            clientSocket.Shutdown(SocketShutdown.Both);
+                                            try
+                                            {
+                                                clientSocket.Shutdown(SocketShutdown.Both);
+                                            }
+                                            catch (SocketException ex)
+                                            {
+                                                Utils.Log("Event ERROR: " + ex.Message);
+                                            }
                                             clientSocket.Close();
                                             Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                         }
@@ -233,7 +264,14 @@ namespace SharpLink
                                     if (!closeFlag && clientSocket.Connected)
                                     {
                                         closeFlag = true;
-                                        clientSocket.Shutdown(SocketShutdown.Both);
+                                        try
+                                        {
+                                            clientSocket.Shutdown(SocketShutdown.Both);
+                                        }
+                                        catch (SocketException ex)
+                                        {
+                                            Utils.Log("Event ERROR: " + ex.Message);
+                                        }
                                         clientSocket.Close();
                                         Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId + ", ConnectId: " + tempConnectId);
                                     }
@@ -246,7 +284,14 @@ namespace SharpLink
                                 if (!closeFlag && clientSocket.Connected)
                                 {
                                     closeFlag = true;
-                                    clientSocket.Shutdown(SocketShutdown.Both);
+                                    try
+                                    {
+                                        clientSocket.Shutdown(SocketShutdown.Both);
+                                    }
+                                    catch (SocketException ex)
+                                    {
+                                        Utils.Log("Event ERROR: " + ex.Message);
+                                    }
                                     clientSocket.Close();
                                     Utils.Log("Event: Close Connection, ClientId: null" + ", ConnectId: " + tempConnectId);
                                 }
@@ -262,7 +307,7 @@ namespace SharpLink
                                 mlink.CloseRemote();
                                 mlink.Close();
                             }
-                        },TaskCreationOptions.LongRunning).ForgetOrThrow();
+                        }, TaskCreationOptions.LongRunning).ForgetOrThrow();
                     }
                 }, TaskCreationOptions.LongRunning).ForgetOrThrow();
             }
@@ -310,7 +355,15 @@ namespace SharpLink
                                     if (!closeFlag && mClientSocket.Connected)
                                     {
                                         closeFlag = true;
-                                        mClientSocket.Shutdown(SocketShutdown.Both);
+                                        try
+                                        {
+                                            mClientSocket.Shutdown(SocketShutdown.Both);
+                                        }
+                                        catch (SocketException ex)
+                                        {
+                                            Utils.Log("Event: " + ex.Message);
+                                        }
+
                                         mClientSocket.Close();
                                         Utils.Log("Event: Close Socket" + ipstr + " " + port + " mLinkID " + mlink.clientId);
                                     }
@@ -321,7 +374,14 @@ namespace SharpLink
                                 if (!closeFlag && mClientSocket.Connected)
                                 {
                                     closeFlag = true;
-                                    mClientSocket.Shutdown(SocketShutdown.Both);
+                                    try
+                                    {
+                                        mClientSocket.Shutdown(SocketShutdown.Both);
+                                    }
+                                    catch (SocketException ex)
+                                    {
+                                        Utils.Log("Event: " + ex.Message);
+                                    }
                                     mClientSocket.Close();
                                     Utils.Log("Event: Close Socket" + ipstr + " " + port + " mLinkID " + mlink.clientId);
                                 }
@@ -352,7 +412,14 @@ namespace SharpLink
                                             {
                                                 Utils.Log("Event: Close Connection, Clientid: " + mlink.clientId);
                                                 closeFlag = true;
-                                                mClientSocket.Shutdown(SocketShutdown.Both);
+                                                try
+                                                {
+                                                    mClientSocket.Shutdown(SocketShutdown.Both);
+                                                }
+                                                catch (SocketException ex)
+                                                {
+                                                    Utils.Log("Event: " + ex.Message);
+                                                }
                                                 mClientSocket.Close();
                                             }
                                             mlink.CloseRemote();
@@ -370,7 +437,14 @@ namespace SharpLink
                                             if (!closeFlag && mClientSocket.Connected)
                                             {
                                                 closeFlag = true;
-                                                mClientSocket.Shutdown(SocketShutdown.Both);
+                                                try
+                                                {
+                                                    mClientSocket.Shutdown(SocketShutdown.Both);
+                                                }
+                                                catch (SocketException ex)
+                                                {
+                                                    Utils.Log("Event: " + ex.Message);
+                                                }
                                                 mClientSocket.Close();
                                                 mlink.Close();
                                                 Utils.Log("Event: Tox send message failed, Clientid: " + mlink.clientId);
@@ -392,7 +466,14 @@ namespace SharpLink
                                         if (!closeFlag && mClientSocket.Connected)
                                         {
                                             closeFlag = true;
-                                            mClientSocket.Shutdown(SocketShutdown.Both);
+                                            try
+                                            {
+                                                mClientSocket.Shutdown(SocketShutdown.Both);
+                                            }
+                                            catch (SocketException ex)
+                                            {
+                                                Utils.Log("Event: " + ex.Message);
+                                            }
                                             mClientSocket.Close();
                                             Utils.Log("Event: Close Connection, ClientId: " + mlink.clientId);
                                         }

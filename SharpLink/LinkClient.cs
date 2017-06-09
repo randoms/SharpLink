@@ -44,7 +44,8 @@ namespace SharpLink
             {
                 ToxRequest mReq;
                 // if idle for 600s, shutdown
-                while (runningFlag && (long)(DateTime.UtcNow -  lastActiveTime).TotalMilliseconds < 600 * 1000) {
+                while (runningFlag && (long)(DateTime.UtcNow - lastActiveTime).TotalMilliseconds < 600 * 1000)
+                {
                     mReq = getRequestToSend();
                     if (mReq != null && msgHandler != null)
                     {
@@ -135,6 +136,7 @@ namespace SharpLink
             if (!res)
             {
                 // 链接tox失败
+                mLinkClient.Close();
                 return null;
             }
             var connectRes = mLinkClient.Connect().GetAwaiter().GetResult();
@@ -142,6 +144,7 @@ namespace SharpLink
             if (!connectRes)
             {
                 // 创建socket失败
+                mLinkClient.Close();
                 return null;
             }
             return mLinkClient;
@@ -227,15 +230,19 @@ namespace SharpLink
             }
         }
 
-        private void sendRequestLocal(ToxRequest req) {
+        private void sendRequestLocal(ToxRequest req)
+        {
             // 把变量保存至本地
-            lock (messageQueueLock) {
+            lock (messageQueueLock)
+            {
                 messageQueue.Enqueue(req);
             }
         }
 
-        private ToxRequest getRequestToSend() {
-            lock (messageQueue) {
+        private ToxRequest getRequestToSend()
+        {
+            lock (messageQueue)
+            {
                 if (messageQueue.Count > 0)
                     return messageQueue.Dequeue();
             }

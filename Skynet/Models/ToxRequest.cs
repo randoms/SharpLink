@@ -43,7 +43,7 @@ namespace Skynet.Models
         public byte[] getBytes()
         {
             MemoryStream ms = new MemoryStream();
-            using (BsonWriter writer = new BsonWriter(ms))
+            using (BsonDataWriter writer = new BsonDataWriter(ms))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(writer, this);
@@ -57,7 +57,7 @@ namespace Skynet.Models
         {
             MemoryStream ms = new MemoryStream(data);
             ToxRequest res;
-            using (BsonReader reader = new BsonReader(ms))
+            using (BsonDataReader reader = new BsonDataReader(ms))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 try

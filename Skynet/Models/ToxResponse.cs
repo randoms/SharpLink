@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Skynet.Models
 {
@@ -22,7 +17,7 @@ namespace Skynet.Models
         public byte[] getBytes()
         {
             MemoryStream ms = new MemoryStream();
-            using (BsonWriter writer = new BsonWriter(ms))
+            using (BsonDataWriter writer = new BsonDataWriter(ms))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(writer, this);
@@ -36,7 +31,7 @@ namespace Skynet.Models
         {
             MemoryStream ms = new MemoryStream(data);
             ToxResponse res;
-            using (BsonReader reader = new BsonReader(ms))
+            using (BsonDataReader reader = new BsonDataReader(ms))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 res = serializer.Deserialize<ToxResponse>(reader);
